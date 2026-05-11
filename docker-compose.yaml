@@ -1,0 +1,108 @@
+version: "3.8"
+
+services:
+  # ----------------------------------------
+  # DATABASES & MESSAGE BROKER
+  # ----------------------------------------
+  inventory-database:
+    build:
+      context: ./inventory-database
+    environment:
+      POSTGRES_DB: inventory
+      POSTGRES_USER: inventoryuser
+      POSTGRES_PASSWORD: inventorypassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - inventory_db_data:/var/lib/postgresql/data
+    networks:
+      - cloud-design-net
+
+  billing-database:
+    build:
+      context: ./billing-database
+    environment:
+      POSTGRES_DB: billing
+      POSTGRES_USER: billinguser
+      POSTGRES_PASSWORD: billingpassword
+    ports:
+      - "5433:5432"
+    volumes:
+      - billing_db_data:/var/lib/postgresql/data
+    networks:
+      - cloud-design-net
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq_user
+      RABBITMQ_DEFAULT_PASS: rabbitmq_password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - cloud-design-net
+
+  # ----------------------------------------
+  # MICROSERVICES
+  # ----------------------------------------
+  inventory-app:
+    build:
+      context: ./inventory-app
+    environment:
+      INVENTORY_DB_HOST: inventory-database
+      INVENTORY_DB_PORT: 5432
+      INVENTORY_DB_NAME: inventory
+      INVENTORY_DB_USER: inventoryuser
+      INVENTORY_DB_PASSWORD: inventorypassword
+      INVENTORY_PORT: 8080
+    ports:
+      - "8081:8080"
+    depends_on:
+      - inventory-database
+    networks:
+      - cloud-design-net
+
+  billing-app:
+    build:
+      context: ./billing-app
+    environment:
+      BILLING_DB_HOST: billing-database
+      BILLING_DB_PORT: 5432
+      BILLING_DB_NAME: billing
+      BILLING_DB_USER: billinguser
+      BILLING_DB_PASSWORD: billingpassword
+      BILLING_PORT: 8080
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: rabbitmq_user
+      RABBITMQ_PASSWORD: rabbitmq_password
+    ports:
+      - "8082:8080"
+    depends_on:
+      - billing-database
+      - rabbitmq
+    networks:
+      - cloud-design-net
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    environment:
+      INVENTORY_SERVICE_URL: http://inventory-app:8080
+      BILLING_SERVICE_URL: http://billing-app:8080
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - inventory-app
+      - billing-app
+    networks:
+      - cloud-design-net
+
+networks:
+  cloud-design-net:
+    driver: bridge
+
+volumes:
+  inventory_db_data:
+  billing_db_data:

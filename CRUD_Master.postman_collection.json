@@ -1,0 +1,531 @@
+{
+  "info": {
+    "_postman_id": "crud-master-collection-v1",
+    "name": "CRUD Master - Audit Validation Suite",
+    "description": "Audit-ready collection for CRUD Master microservices.\n\nFlow:\n- API Gateway is the single client entry point\n- Gateway routes /api/movies requests to Inventory API\n- Billing requests are published asynchronously\n\nInventory endpoints covered:\n- /api/movies: GET, POST, DELETE\n- /api/movies/<id>: GET, PUT, DELETE\n- /api/movies?title=<name>",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "26420322"
+  },
+  "item": [
+    {
+      "name": "Movies",
+      "item": [
+        {
+          "name": "POST /api/movies - create movie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success flag\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains movie object\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.movie).to.be.an('object');",
+                  "    pm.expect(jsonData.movie).to.have.property('id');",
+                  "    pm.expect(jsonData.movie).to.have.property('title');",
+                  "    pm.expect(jsonData.movie).to.have.property('description');",
+                  "});",
+                  "",
+                  "pm.test(\"Movie has correct values\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.movie.title).to.equal('Arrival');",
+                  "    pm.expect(jsonData.movie.description).to.equal('Sci-fi drama about first contact.');",
+                  "});",
+                  "",
+                  "pm.test(\"Movie has auto-generated ID\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.movie.id).to.be.a('number');",
+                  "    pm.expect(jsonData.movie.id).to.be.greaterThan(0);",
+                  "    pm.variables.set('movieId', jsonData.movie.id);",
+                  "});",
+                  "",
+                  "pm.test(\"Movie has timestamps\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.movie).to.have.property('created_at');",
+                  "    pm.expect(jsonData.movie).to.have.property('updated_at');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.variables.set('movieTitle', 'Arrival');",
+                  "pm.variables.set('movieDescription', 'Sci-fi drama about first contact.');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Arrival\",\n  \"description\": \"Sci-fi drama about first contact.\"\n}"
+            },
+            "url": {
+              "raw": "http://192.168.56.10:30000/api/movies",
+              "host": ["192.168.56.10"],
+              "protocol": "http",
+              "port": "30000",
+              "path": ["api", "movies"]
+            },
+            "description": "Create a new movie in the inventory.\n\nRequired fields:\n- title\n- description"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/movies - all movies",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success flag\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains movies array\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('movies');",
+                  "    pm.expect(jsonData.movies).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Response includes count\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('count');",
+                  "    pm.expect(jsonData.count).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test(\"If movies exist, they have required properties\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.movies.length > 0) {",
+                  "        var movie = jsonData.movies[0];",
+                  "        pm.expect(movie).to.have.property('id');",
+                  "        pm.expect(movie).to.have.property('title');",
+                  "        pm.expect(movie).to.have.property('description');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://192.168.56.10:30000/api/movies",
+              "host": ["192.168.56.10"],
+              "protocol": "http",
+              "port": "30000",
+              "path": ["api", "movies"]
+            },
+            "description": "Retrieve all movies from the inventory."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/movies?title=name - filter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains movies array\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.movies).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://192.168.56.10:30000/api/movies?title=atri",
+              "host": ["192.168.56.10"],
+              "protocol": "http",
+              "port": "30000",
+              "path": ["api", "movies"],
+              "query": [
+                {
+                  "key": "title",
+                  "value": "atri"
+                }
+              ]
+            },
+            "description": "Retrieve movies by title keyword using query parameter."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/movies/<id> - single movie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success flag\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains movie object\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('movie');",
+                  "    pm.expect(jsonData.movie).to.be.an('object');",
+                  "});",
+                  "",
+                  "pm.test(\"Movie has correct ID\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.movie.id).to.equal(parseInt(pm.variables.get('movieId')));",
+                  "});",
+                  "",
+                  "pm.test(\"Movie has all required properties\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.movie).to.have.property('id');",
+                  "    pm.expect(jsonData.movie).to.have.property('title');",
+                  "    pm.expect(jsonData.movie).to.have.property('description');",
+                  "    pm.expect(jsonData.movie).to.have.property('created_at');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://192.168.56.10:30000/api/movies/{{movieId}}",
+              "host": ["192.168.56.10"],
+              "protocol": "http",
+              "port": "30000",
+              "path": ["api", "movies", "{{movieId}}"]
+            },
+            "description": "Retrieve a specific movie by its ID."
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /api/movies/<id> - update movie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success flag\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Movie was updated\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.movie.rating).to.equal(9.0);",
+                  "    pm.expect(jsonData.movie.available_copies).to.equal(3);",
+                  "});",
+                  "",
+                  "pm.test(\"Updated_at timestamp changed\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.movie).to.have.property('updated_at');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 9.0,\n  \"available_copies\": 3\n}"
+            },
+            "url": {
+              "raw": "http://192.168.56.10:30000/api/movies/{{movieId}}",
+              "host": ["192.168.56.10"],
+              "protocol": "http",
+              "port": "30000",
+              "path": ["api", "movies", "{{movieId}}"]
+            },
+            "description": "Update a movie's details (partial update supported)."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /api/movies/<id> - delete one",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success flag\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success message\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('deleted');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://192.168.56.10:30000/api/movies/{{movieId}}",
+              "host": ["192.168.56.10"],
+              "protocol": "http",
+              "port": "30000",
+              "path": ["api", "movies", "{{movieId}}"]
+            },
+            "description": "Delete a specific movie by ID."
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /api/movies - delete all",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success flag\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains deleted_count\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('deleted_count');",
+                  "    pm.expect(jsonData.deleted_count).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test(\"Contains warning message\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include('deleted');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://192.168.56.10:30000/api/movies",
+              "host": ["192.168.56.10"],
+              "protocol": "http",
+              "port": "30000",
+              "path": ["api", "movies"]
+            },
+            "description": "⚠️ **WARNING**: Delete ALL movies from the database. This operation cannot be undone!"
+          },
+          "response": []
+        }
+      ],
+      "description": "Movie Inventory CRUD operations routed through API Gateway to Inventory API (HTTP Proxy pattern)"
+    },
+    {
+      "name": "Billing",
+      "item": [
+        {
+          "name": "POST /api/billing - place order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains message\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('message');",
+                  "    pm.expect(jsonData.message).to.include('queued');",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains order data\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('order');",
+                  "});",
+                  "",
+                  "pm.test(\"Order has required fields\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.order).to.have.property('user_id');",
+                  "    pm.expect(jsonData.order).to.have.property('number_of_items');",
+                  "    pm.expect(jsonData.order).to.have.property('total_amount');",
+                  "});",
+                  "",
+                  "pm.test(\"Order values are correct\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.order.user_id).to.equal('20');",
+                  "    pm.expect(jsonData.order.number_of_items).to.equal('5');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"20\",\n  \"number_of_items\": \"5\",\n  \"total_amount\": \"49.99\"\n}"
+            },
+            "url": {
+              "raw": "http://192.168.56.10:30000/api/billing",
+              "host": ["192.168.56.10"],
+              "protocol": "http",
+              "port": "30000",
+              "path": ["api", "billing"]
+            },
+            "description": "Create an order and publish it to RabbitMQ queue.\n\nReturns 200 OK immediately (async processing).\n\nDemonstrates message queue pattern with eventual consistency and durability."
+          },
+          "response": []
+        }
+      ],
+      "description": "Billing/Order operations published to RabbitMQ (Message Queue pattern)"
+    },
+    {
+      "name": "Health & Status",
+      "item": [
+        {
+          "name": "GET /health - gateway health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has status\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('status');",
+                  "});",
+                  "",
+                  "pm.test(\"Response has service info\", function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('service');",
+                  "    pm.expect(jsonData.service).to.equal('API Gateway');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://192.168.56.10:30000/health",
+              "host": ["192.168.56.10"],
+              "protocol": "http",
+              "port": "30000",
+              "path": ["health"]
+            },
+            "description": "Check health status of the API Gateway."
+          },
+          "response": []
+        }
+      ],
+      "description": "Service health and status endpoints"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": []
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": []
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "movieId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "movieTitle",
+      "value": "Arrival",
+      "type": "string"
+    },
+    {
+      "key": "movieDescription",
+      "value": "Sci-fi drama about first contact.",
+      "type": "string"
+    }
+  ]
+}
