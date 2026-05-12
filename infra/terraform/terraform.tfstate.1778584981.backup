@@ -1,7 +1,7 @@
 {
   "version": 4,
   "terraform_version": "1.15.2",
-  "serial": 107,
+  "serial": 67,
   "lineage": "8e545170-3f9a-a8f5-7e55-ec1bb169ca45",
   "outputs": {
     "alb_url": {
@@ -417,17 +417,10 @@
             "force_delete": null,
             "force_new_deployment": null,
             "health_check_grace_period_seconds": 0,
-            "iam_role": "/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS",
+            "iam_role": null,
             "id": "arn:aws:ecs:eu-north-1:011237053542:service/cloud-design-cluster/full-stack-service",
             "launch_type": "EC2",
-            "load_balancer": [
-              {
-                "container_name": "api-gateway",
-                "container_port": 3000,
-                "elb_name": "",
-                "target_group_arn": "arn:aws:elasticloadbalancing:eu-north-1:011237053542:targetgroup/api-gateway-tg/9ddfa2fa0938e2cf"
-              }
-            ],
+            "load_balancer": [],
             "name": "full-stack-service",
             "network_configuration": [],
             "ordered_placement_strategy": [],
@@ -442,7 +435,7 @@
               "Owner": "Team",
               "Project": "CloudDesign"
             },
-            "task_definition": "arn:aws:ecs:eu-north-1:011237053542:task-definition/full-stack-app:9",
+            "task_definition": "arn:aws:ecs:eu-north-1:011237053542:task-definition/full-stack-app:1",
             "timeouts": null,
             "triggers": {},
             "volume_configuration": [],
@@ -458,9 +451,7 @@
             "aws_ecr_repository.inventory_app",
             "aws_ecs_cluster.main",
             "aws_ecs_task_definition.full_stack",
-            "aws_iam_role.ecs_execution_role",
-            "aws_lb_target_group.api_gateway",
-            "aws_vpc.main"
+            "aws_iam_role.ecs_execution_role"
           ]
         }
       ]
@@ -474,9 +465,9 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/full-stack-app:9",
+            "arn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/full-stack-app:1",
             "arn_without_revision": "arn:aws:ecs:eu-north-1:011237053542:task-definition/full-stack-app",
-            "container_definitions": "[{\"environment\":[{\"name\":\"BILLING_SERVICE_URL\",\"value\":\"http://billing-app:8080\"},{\"name\":\"INVENTORY_SERVICE_URL\",\"value\":\"http://inventory-app:8080\"},{\"name\":\"PORT\",\"value\":\"3000\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-api-gateway:latest\",\"memory\":96,\"mountPoints\":[],\"name\":\"api-gateway\",\"portMappings\":[{\"containerPort\":3000,\"hostPort\":3000,\"protocol\":\"tcp\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"dependsOn\":[{\"condition\":\"START\",\"containerName\":\"billing-database\"},{\"condition\":\"START\",\"containerName\":\"rabbitmq\"}],\"environment\":[{\"name\":\"BILLING_DB_HOST\",\"value\":\"billing-database\"},{\"name\":\"BILLING_DB_NAME\",\"value\":\"billing\"},{\"name\":\"BILLING_DB_PASSWORD\",\"value\":\"billingpassword\"},{\"name\":\"BILLING_DB_PORT\",\"value\":\"5432\"},{\"name\":\"BILLING_DB_USER\",\"value\":\"billinguser\"},{\"name\":\"BILLING_PORT\",\"value\":\"8080\"},{\"name\":\"RABBITMQ_HOST\",\"value\":\"rabbitmq\"},{\"name\":\"RABBITMQ_PASSWORD\",\"value\":\"rabbitmq_password\"},{\"name\":\"RABBITMQ_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":false,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-billing-app:latest\",\"links\":[\"billing-database\",\"rabbitmq\"],\"memory\":64,\"mountPoints\":[],\"name\":\"billing-app\",\"portMappings\":[],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"POSTGRES_DB\",\"value\":\"billing\"},{\"name\":\"POSTGRES_PASSWORD\",\"value\":\"billingpassword\"},{\"name\":\"POSTGRES_USER\",\"value\":\"billinguser\"}],\"essential\":true,\"image\":\"postgres:13-alpine\",\"memory\":128,\"mountPoints\":[],\"name\":\"billing-database\",\"portMappings\":[],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"INVENTORY_DB_HOST\",\"value\":\"inventory-database\"},{\"name\":\"INVENTORY_DB_NAME\",\"value\":\"inventory\"},{\"name\":\"INVENTORY_DB_PASSWORD\",\"value\":\"inventorypassword\"},{\"name\":\"INVENTORY_DB_PORT\",\"value\":\"5432\"},{\"name\":\"INVENTORY_DB_USER\",\"value\":\"inventoryuser\"},{\"name\":\"INVENTORY_PORT\",\"value\":\"8080\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-inventory-app:latest\",\"links\":[\"inventory-database\"],\"memory\":64,\"mountPoints\":[],\"name\":\"inventory-app\",\"portMappings\":[],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"POSTGRES_DB\",\"value\":\"inventory\"},{\"name\":\"POSTGRES_PASSWORD\",\"value\":\"inventorypassword\"},{\"name\":\"POSTGRES_USER\",\"value\":\"inventoryuser\"}],\"essential\":true,\"image\":\"postgres:13-alpine\",\"memory\":128,\"mountPoints\":[],\"name\":\"inventory-database\",\"portMappings\":[],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"RABBITMQ_DEFAULT_PASS\",\"value\":\"rabbitmq_password\"},{\"name\":\"RABBITMQ_DEFAULT_USER\",\"value\":\"rabbitmq_user\"},{\"name\":\"RABBITMQ_MAX_PROCESSES\",\"value\":\"2048\"},{\"name\":\"RABBITMQ_VM_MEMORY_HIGH_WATERMARK\",\"value\":\"0.25\"}],\"essential\":false,\"image\":\"rabbitmq:3-alpine\",\"memory\":160,\"mountPoints\":[],\"name\":\"rabbitmq\",\"portMappings\":[],\"systemControls\":[],\"volumesFrom\":[]}]",
+            "container_definitions": "[{\"environment\":[{\"name\":\"BILLING_SERVICE_URL\",\"value\":\"http://billing-app:8080\"},{\"name\":\"INVENTORY_SERVICE_URL\",\"value\":\"http://inventory-app:8080\"},{\"name\":\"PORT\",\"value\":\"3000\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-api-gateway:latest\",\"links\":[\"inventory-app\",\"billing-app\"],\"memory\":384,\"mountPoints\":[],\"name\":\"api-gateway\",\"portMappings\":[{\"containerPort\":3000,\"hostPort\":80,\"protocol\":\"tcp\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"BILLING_DB_HOST\",\"value\":\"billing-database\"},{\"name\":\"BILLING_DB_NAME\",\"value\":\"billing\"},{\"name\":\"BILLING_DB_PASSWORD\",\"value\":\"billingpassword\"},{\"name\":\"BILLING_DB_PORT\",\"value\":\"5432\"},{\"name\":\"BILLING_DB_USER\",\"value\":\"billinguser\"},{\"name\":\"BILLING_PORT\",\"value\":\"8080\"},{\"name\":\"RABBITMQ_HOST\",\"value\":\"rabbitmq\"},{\"name\":\"RABBITMQ_PASSWORD\",\"value\":\"rabbitmq_password\"},{\"name\":\"RABBITMQ_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-billing-app:latest\",\"links\":[\"billing-database\",\"rabbitmq\"],\"memory\":256,\"mountPoints\":[],\"name\":\"billing-app\",\"portMappings\":[],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"POSTGRES_DB\",\"value\":\"billing\"},{\"name\":\"POSTGRES_PASSWORD\",\"value\":\"billingpassword\"},{\"name\":\"POSTGRES_USER\",\"value\":\"billinguser\"}],\"essential\":true,\"image\":\"postgres:13-alpine\",\"memory\":256,\"mountPoints\":[],\"name\":\"billing-database\",\"portMappings\":[],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"INVENTORY_DB_HOST\",\"value\":\"inventory-database\"},{\"name\":\"INVENTORY_DB_NAME\",\"value\":\"inventory\"},{\"name\":\"INVENTORY_DB_PASSWORD\",\"value\":\"inventorypassword\"},{\"name\":\"INVENTORY_DB_PORT\",\"value\":\"5432\"},{\"name\":\"INVENTORY_DB_USER\",\"value\":\"inventoryuser\"},{\"name\":\"INVENTORY_PORT\",\"value\":\"8080\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-inventory-app:latest\",\"links\":[\"inventory-database\"],\"memory\":256,\"mountPoints\":[],\"name\":\"inventory-app\",\"portMappings\":[],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"POSTGRES_DB\",\"value\":\"inventory\"},{\"name\":\"POSTGRES_PASSWORD\",\"value\":\"inventorypassword\"},{\"name\":\"POSTGRES_USER\",\"value\":\"inventoryuser\"}],\"essential\":true,\"image\":\"postgres:13-alpine\",\"memory\":256,\"mountPoints\":[],\"name\":\"inventory-database\",\"portMappings\":[],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"RABBITMQ_DEFAULT_PASS\",\"value\":\"rabbitmq_password\"},{\"name\":\"RABBITMQ_DEFAULT_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"image\":\"rabbitmq:3-management-alpine\",\"memory\":256,\"mountPoints\":[],\"name\":\"rabbitmq\",\"portMappings\":[],\"systemControls\":[],\"volumesFrom\":[]}]",
             "cpu": "",
             "enable_fault_injection": false,
             "ephemeral_storage": [],
@@ -493,10 +484,10 @@
             "requires_compatibilities": [
               "EC2"
             ],
-            "revision": 9,
+            "revision": 1,
             "runtime_platform": [],
             "skip_destroy": false,
-            "tags": null,
+            "tags": {},
             "tags_all": {
               "Owner": "Team",
               "Project": "CloudDesign"
@@ -878,77 +869,6 @@
     },
     {
       "mode": "managed",
-      "type": "aws_lb_listener",
-      "name": "http",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "alpn_policy": null,
-            "arn": "arn:aws:elasticloadbalancing:eu-north-1:011237053542:listener/app/cloud-design-alb/e16a5a21f0b949dd/add7b35d936d2f72",
-            "certificate_arn": null,
-            "default_action": [
-              {
-                "authenticate_cognito": [],
-                "authenticate_oidc": [],
-                "fixed_response": [],
-                "forward": [],
-                "order": 1,
-                "redirect": [],
-                "target_group_arn": "arn:aws:elasticloadbalancing:eu-north-1:011237053542:targetgroup/api-gateway-tg/9ddfa2fa0938e2cf",
-                "type": "forward"
-              }
-            ],
-            "id": "arn:aws:elasticloadbalancing:eu-north-1:011237053542:listener/app/cloud-design-alb/e16a5a21f0b949dd/add7b35d936d2f72",
-            "load_balancer_arn": "arn:aws:elasticloadbalancing:eu-north-1:011237053542:loadbalancer/app/cloud-design-alb/e16a5a21f0b949dd",
-            "mutual_authentication": [],
-            "port": 80,
-            "protocol": "HTTP",
-            "routing_http_request_x_amzn_mtls_clientcert_header_name": null,
-            "routing_http_request_x_amzn_mtls_clientcert_issuer_header_name": null,
-            "routing_http_request_x_amzn_mtls_clientcert_leaf_header_name": null,
-            "routing_http_request_x_amzn_mtls_clientcert_serial_number_header_name": null,
-            "routing_http_request_x_amzn_mtls_clientcert_subject_header_name": null,
-            "routing_http_request_x_amzn_mtls_clientcert_validity_header_name": null,
-            "routing_http_request_x_amzn_tls_cipher_suite_header_name": null,
-            "routing_http_request_x_amzn_tls_version_header_name": null,
-            "routing_http_response_access_control_allow_credentials_header_value": "",
-            "routing_http_response_access_control_allow_headers_header_value": "",
-            "routing_http_response_access_control_allow_methods_header_value": "",
-            "routing_http_response_access_control_allow_origin_header_value": "",
-            "routing_http_response_access_control_expose_headers_header_value": "",
-            "routing_http_response_access_control_max_age_header_value": "",
-            "routing_http_response_content_security_policy_header_value": "",
-            "routing_http_response_server_enabled": true,
-            "routing_http_response_strict_transport_security_header_value": "",
-            "routing_http_response_x_content_type_options_header_value": "",
-            "routing_http_response_x_frame_options_header_value": "",
-            "ssl_policy": "",
-            "tags": {},
-            "tags_all": {
-              "Owner": "Team",
-              "Project": "CloudDesign"
-            },
-            "tcp_idle_timeout_seconds": null,
-            "timeouts": null
-          },
-          "sensitive_attributes": [],
-          "identity_schema_version": 0,
-          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsInVwZGF0ZSI6MzAwMDAwMDAwMDAwfX0=",
-          "dependencies": [
-            "aws_lb.main",
-            "aws_lb_target_group.api_gateway",
-            "aws_security_group.alb_sg",
-            "aws_subnet.public_1",
-            "aws_subnet.public_2",
-            "aws_vpc.main"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
       "type": "aws_lb_target_group",
       "name": "api_gateway",
       "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
@@ -956,8 +876,8 @@
         {
           "schema_version": 0,
           "attributes": {
-            "arn": "arn:aws:elasticloadbalancing:eu-north-1:011237053542:targetgroup/api-gateway-tg/9ddfa2fa0938e2cf",
-            "arn_suffix": "targetgroup/api-gateway-tg/9ddfa2fa0938e2cf",
+            "arn": "arn:aws:elasticloadbalancing:eu-north-1:011237053542:targetgroup/api-gateway-tg/c8a5e5308b842a7c",
+            "arn_suffix": "targetgroup/api-gateway-tg/c8a5e5308b842a7c",
             "connection_termination": null,
             "deregistration_delay": "300",
             "health_check": [
@@ -973,7 +893,7 @@
                 "unhealthy_threshold": 3
               }
             ],
-            "id": "arn:aws:elasticloadbalancing:eu-north-1:011237053542:targetgroup/api-gateway-tg/9ddfa2fa0938e2cf",
+            "id": "arn:aws:elasticloadbalancing:eu-north-1:011237053542:targetgroup/api-gateway-tg/c8a5e5308b842a7c",
             "ip_address_type": "ipv4",
             "lambda_multi_value_headers_enabled": false,
             "load_balancer_arns": [
@@ -1031,7 +951,7 @@
                 "unhealthy_draining_interval": null
               }
             ],
-            "target_type": "instance",
+            "target_type": "ip",
             "vpc_id": "vpc-0cbdd0f24bab23b2a"
           },
           "sensitive_attributes": [],

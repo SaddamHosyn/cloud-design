@@ -242,113 +242,29 @@
 
 ---
 
-## ✅ Local vs AWS — What to Do Where
+## ✅ Cloud Deployment — Full AWS Setup
 
-### Local Work
+To fulfill the audit requirement (Q23), **all microservices must be deployed and running in the AWS cloud environment**. While you should use Docker Compose for local development and testing, your final deployment and demonstration must have the entire architecture running on AWS.
 
-Do all heavy development locally because this is where you can safely run the whole system without worrying about AWS memory, CPU, or hourly charges. This includes Docker builds, Docker Compose for all services, debugging, database setup, RabbitMQ testing, and Terraform writing.
+### Tasks to perform in AWS:
 
-Do these tasks locally:
-
-- Build Docker images for inventory-app, billing-app, api-gateway-app, RabbitMQ, and the two PostgreSQL services.
-- Run the full stack with Docker Compose.
-- Verify ports and connectivity:
-  - inventory-database → 5432
-  - billing-database → 5432
-  - inventory-app → 8080
-  - billing-app → 8080
-  - api-gateway-app → 3000
-- Test billing-app consuming RabbitMQ messages.
-- Create and test environment variables and secrets structure.
-- Write Terraform files and run: `terraform fmt`, `terraform validate`, `terraform plan`
-- Set up Prometheus + Grafana locally.
-- If required, test ELK locally too, though for a budget-friendly submission CloudWatch in AWS plus local observability is usually enough.
-
-### AWS Work
-
-Use AWS only for the minimum cloud proof: network, security, one small compute target, maybe one RDS instance, logging, and documentation-backed evidence that your cloud design works.
-
-Do these tasks in AWS:
-
-- Create the VPC, subnets, route tables, internet gateway, and security groups with Terraform.
-- Create IAM roles and policies needed for ECS, EC2 if used, CloudWatch, and any other AWS service you use.
-- Create an ECS cluster for the application.
-- Push Docker images to a container registry such as Amazon ECR.
-- Create ECS task definitions for the microservices.
-- Create ECS services to run the containers.
-- Use an Application Load Balancer for public traffic.
-- Use CloudWatch for basic logs and metrics.
-- Optionally use S3 for Terraform state.
-- Optionally use one RDS PostgreSQL instance, then keep inventory and billing separate using two databases or two schemas in the same PostgreSQL instance.
-- Apply security groups so databases are not publicly open.
-- If you need HTTPS for the architecture explanation, document ACM and API Gateway in the design, but do not overbuild paid components unless required.
-
-### Best Split Table
-
-| Area                   | Do Locally                    | Do on AWS                       |
-| ---------------------- | ----------------------------- | ------------------------------- |
-| Dockerfiles            | Yes                           | No                              |
-| Full microservices run | Yes                           | Only minimal demo               |
-| Docker Compose         | Yes                           | No                              |
-| Terraform authoring    | Yes                           | No                              |
-| Terraform apply        | No                            | Yes, only essential infra       |
-| ECS task definitions   | Yes                           | Yes                             |
-| Monitoring             | Prometheus/Grafana            | CloudWatch basics               |
-| Databases              | Two local Postgres containers | One RDS PostgreSQL instance max |
-| RabbitMQ               | Local                         | Optional in AWS demo            |
-| Load testing           | Local                         | Not necessary unless brief demo |
-| README and diagrams    | Yes                           | No                              |
-
-### Suggested Cloud Deployment
-
-For a free-tier-friendly submission, use this simple model:
-
-**Local machine:**
-
-- Full Docker Compose stack
-- Terraform code
-- Prometheus/Grafana
-
-**AWS:**
-
-- 1 VPC
-- 1 ECS cluster
-- ECS services for the application containers
-- 1 RDS PostgreSQL instance if needed
-- CloudWatch
-- S3 for state if desired
-
-That is enough to show:
-
-- You understand AWS networking.
-- You can provision infrastructure with Terraform.
-- You can deploy containers in the cloud.
-- You know how to secure database access.
-- You understand observability and scaling concepts.
-
-### What NOT To Do
-
-- Do not overbuild the environment with unnecessary managed services.
-- Do not leave compute, databases, or load balancers running when you are not actively testing.
-- Do not try to run a full production-style highly available setup 24/7 on a strict free-tier mindset, because the project is too large for that budget.
+- Deploy the complete network using Terraform (VPC, subnets, route tables, internet gateway, security groups).
+- Create an ECS cluster to run **all** application containers.
+- Push Docker images for all microservices (api-gateway, inventory, billing, rabbitmq, and databases) to Amazon ECR.
+- Deploy all microservices using ECS services and task definitions.
+- Set up an Application Load Balancer to route traffic to the api-gateway-app.
+- Deploy PostgreSQL and RabbitMQ in the cloud (either via ECS containers or managed services like RDS and Amazon MQ/Amazon Linux EC2 if preferred).
+- Use CloudWatch for logs and metrics across all deployed services.
+- Apply security groups so databases and internal services are not publicly accessible.
+- Configure auto-scaling rules for variable workloads.
 
 ### Execution Order
 
-Follow this order so you do not get stuck:
-
-1. Build and test every service locally with Docker Compose.
-2. Make sure app-to-app communication works locally.
-3. Write Terraform for VPC, security groups, ECS-related resources, optional RDS, and CloudWatch.
-4. Run `terraform plan` locally.
-5. Create a minimal AWS deployment.
-6. Show only what is necessary in AWS.
-7. Stop or destroy resources after demo.
-
-### Practical Rule
-
-> If it can be developed, tested, or demonstrated locally, do it locally. If it must prove AWS knowledge, do that small part in AWS.
-
----
+1. Develop and test every service locally with Docker Compose to ensure app-to-app communication is solid.
+2. Write Terraform for the full infrastructure: VPC, security groups, ECS cluster, ECR, ALB, CloudWatch, and DB/RabbitMQ resources.
+3. Push all Docker images to ECR.
+4. Run `terraform apply` to create the full AWS deployment.
+5. Demonstrate the fully working cloud environment.
 
 ## 👥 Team AWS Account Access (IMPORTANT — Remember This!)
 
@@ -433,7 +349,7 @@ If it is heavy dev or integration work, do it locally with Docker Compose.
 If it is easier to inspect visually, open the console after the resource already exists.
 That is the cleanest and fastest way to handle a project of this size without drowning in AWS console clicking.
 
-To stay effectively “free of cost”, the plan needs to be adjusted to minimize or completely avoid paid AWS services and to fit within AWS Free Tier limits where possible. Below is the updated step‑by‑step plan with that constraint baked in.
+Below is the step-by-step plan to deploy the full microservices architecture to AWS as required by the project audit.
 
 ---
 
@@ -458,8 +374,8 @@ To stay effectively “free of cost”, the plan needs to be adjusted to minimiz
   - Console only when visual is easier (CloudWatch logs, ALB health, Cognito UI).
 - Local‑first:
   - All dev, integration, and full‑stack runs done locally.
-- Free‑tier‑aware:
-  - Only minimal AWS infra, short‑lived, and always torn down after tests.
+- Cloud-Production-Ready:
+  - Deploy all microservices (six total) in AWS to fully satisfy the audit requirements.
 
 ---
 
@@ -468,7 +384,7 @@ To stay effectively “free of cost”, the plan needs to be adjusted to minimiz
 - “Done” means:
   - All six microservices containerized.
   - Full stack works in Docker Compose (with RabbitMQ and two Postgres DBs).
-  - Minimal but real AWS deployment (VPC, ECS, ALB, maybe RDS) created with Terraform and validated.
+  - Complete AWS deployment (VPC, ECS, ALB, all microservices, RabbitMQ, RDS or Postgres containers) created with Terraform and validated.
   - Monitoring and logging:
     - Locally: Prometheus + Grafana, optional ELK.
     - AWS: CloudWatch logs and basic metrics.
@@ -577,41 +493,33 @@ To stay effectively “free of cost”, the plan needs to be adjusted to minimiz
 
 ---
 
-## Step 11 – Build/push images to ECR (minimal set)
+## Step 11 – Build/push all images to ECR
 
-- Create ECR repositories via Terraform or console (once).
-- Tag and push:
-  - At least `api-gateway-app`.
-  - At least one backend app (inventory or billing).
-- Keep tag count low and repos small to avoid noticeable storage cost.
+- Create ECR repositories via Terraform or console.
+- Tag and push all microservices to ECR (api-gateway, inventory, billing, rabbitmq, and databases).
 
 ---
 
-## Step 12 – Minimal AWS deployment with ECS (Free Tier‑friendly)
+## Step 12 – Full AWS Deployment with ECS
 
 - Run `terraform apply` to create:
   - VPC + subnets + SGs.
   - ECS cluster.
-  - ECS task definitions and services for minimal set (e.g. api-gateway + one backend).
-- Use EC2 launch type for ECS with a `t2.micro`/`t3.micro` instance from Free Tier.
-- Optionally, create ALB via Terraform to expose api-gateway publicly.
+  - ECS task definitions and services for ALL microservices.
+- Use EC2 launch type for ECS with a `t3.small` instance to comfortably run all the containers.
+- Attach the Application Load Balancer to the api-gateway service.
 - Validate:
-  - Tasks are running.
+  - All tasks (api-gateway, inventory, billing, queues, and databases) are running.
   - ALB target health is OK.
-  - Requests through ALB reach your app.
+  - Requests through ALB successfully route through the microservices.
 
 ---
 
-## Step 13 – Database strategy (RDS vs local containers under constraints)
+## Step 13 – Database Strategy (Deploy to AWS)
 
-- RDS:
-  - Write Terraform for a small RDS Postgres instance in DB subnets (design and code).
-  - For absolute free‑tier safety, either:
-    - Keep RDS **design‑only** (do not apply), and explain in role‑play how it would be used.
-    - Or create a very small instance briefly during demo windows, then destroy it immediately.
-- For runtime:
-  - Use local Postgres containers for serious load tests.
-  - Ensure app configs can switch between local DB and RDS endpoint via environment variables.
+- Establish the databases in AWS. Use either Amazon RDS instances for PostgreSQL or run PostgreSQL containers within ECS as per your design.
+- Ensure properly secured DB subnets are used, meaning the databases are only accessible from the ECS backend tasks.
+- Setup RabbitMQ similarly in AWS (using Amazon MQ or a container on ECS).
 
 ---
 
@@ -683,7 +591,7 @@ To stay effectively “free of cost”, the plan needs to be adjusted to minimiz
   - Practice explaining trade‑offs, why AWS, why ECS, why Terraform, why local‑first.
 - Final tests:
   - Run full local stack with Docker Compose + observability.
-  - Run minimal AWS deployment once more, confirm everything works.
+  - Run the full AWS deployment once more, confirm all microservices communicate effectively in the cloud.
 - Final clean‑up:
   - Capture screenshots.
   - Tear down AWS (terraform destroy, check for leftovers).
