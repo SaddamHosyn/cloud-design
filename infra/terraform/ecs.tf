@@ -88,22 +88,45 @@ resource "aws_ecs_cluster_capacity_providers" "main" {
 }
 
 # ==========================================
-# ONE MASSIVE TASK DEFINITION (All 6 Containers)
+# TASK DEFINITION 1: API Gateway (Instance 1)
 # ==========================================
-# To fit everything on a 2GB RAM t3.small and let them communicate easily
-# over localhost, we put all 6 containers into ONE task definition.
-resource "aws_ecs_task_definition" "full_stack" {
-  family                   = "full-stack-app"
-  network_mode             = "bridge" # Uses standard docker networking on the EC2 host
+resource "aws_ecs_task_definition" "api_gateway" {
+  family                   = "api-gateway-task"
+  network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
 
-  # Three t3.small instances = 6 GiB total RAM
-  # Six services × 512 MiB = 3 GiB container memory
-  # Placement strategy allows optimal distribution across nodes:
-  # Instance 1: api-gateway (512 MiB)
-  # Instance 2: billing-app + billing-database + rabbitmq (1536 MiB)
-  # Instance 3: inventory-app + inventory-database (1024 MiB)
+  container_definitions = jsonencode([
+    {
+      name      = "api-gateway"
+      image     = "${aws_ecr_repository.api_gateway.repository_url}:latest"
+      memory    = 512
+      essential = true
+      portMappings = [
+        {
+          containerPort = 3000
+          hostPort      = 80
+          protocol      = "tcp"
+        }
+      ]
+      environment = [
+        { name = "INVENTORY_SERVICE_URL", value = "http://inventory-app.local:8080" },
+        { name = "BILLING_SERVICE_URL", value = "http://billing-app.local:8080" },
+        { name = "PORT", value = "3000" }
+      ]
+    }
+  ])
+}
+
+# ==========================================
+# TASK DEFINITION 2: Billing Stack (Instance 2)
+# ==========================================
+resource "aws_ecs_task_definition" "billing_stack" {
+  family                   = "billing-stack-task"
+  network_mode             = "bridge"
+  requires_compatibilities = ["EC2"]
+  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+
   container_definitions = jsonencode([
     {
       name      = "rabbitmq"
@@ -113,17 +136,6 @@ resource "aws_ecs_task_definition" "full_stack" {
       environment = [
         { name = "RABBITMQ_DEFAULT_USER", value = "rabbitmq_user" },
         { name = "RABBITMQ_DEFAULT_PASS", value = "rabbitmq_password" }
-      ]
-    },
-    {
-      name      = "inventory-database"
-      image     = "postgres:13-alpine"
-      memory    = 512
-      essential = true
-      environment = [
-        { name = "POSTGRES_DB", value = "inventory" },
-        { name = "POSTGRES_USER", value = "inventoryuser" },
-        { name = "POSTGRES_PASSWORD", value = "inventorypassword" }
       ]
     },
     {
@@ -138,26 +150,18 @@ resource "aws_ecs_task_definition" "full_stack" {
       ]
     },
     {
-      name      = "inventory-app"
-      image     = "${aws_ecr_repository.inventory_app.repository_url}:latest"
-      memory    = 512
-      essential = true
-      links     = ["inventory-database"]
-      environment = [
-        { name = "INVENTORY_DB_HOST", value = "inventory-database" },
-        { name = "INVENTORY_DB_PORT", value = "5432" },
-        { name = "INVENTORY_DB_NAME", value = "inventory" },
-        { name = "INVENTORY_DB_USER", value = "inventoryuser" },
-        { name = "INVENTORY_DB_PASSWORD", value = "inventorypassword" },
-        { name = "INVENTORY_PORT", value = "8080" }
-      ]
-    },
-    {
       name      = "billing-app"
       image     = "${aws_ecr_repository.billing_app.repository_url}:latest"
       memory    = 512
       essential = true
       links     = ["billing-database", "rabbitmq"]
+      portMappings = [
+        {
+          containerPort = 8080
+          hostPort      = 8080
+          protocol      = "tcp"
+        }
+      ]
       environment = [
         { name = "BILLING_DB_HOST", value = "billing-database" },
         { name = "BILLING_DB_PORT", value = "5432" },
@@ -169,36 +173,63 @@ resource "aws_ecs_task_definition" "full_stack" {
         { name = "RABBITMQ_USER", value = "rabbitmq_user" },
         { name = "RABBITMQ_PASSWORD", value = "rabbitmq_password" }
       ]
-    },
+    }
+  ])
+}
+
+# ==========================================
+# TASK DEFINITION 3: Inventory Stack (Instance 3)
+# ==========================================
+resource "aws_ecs_task_definition" "inventory_stack" {
+  family                   = "inventory-stack-task"
+  network_mode             = "bridge"
+  requires_compatibilities = ["EC2"]
+  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+
+  container_definitions = jsonencode([
     {
-      name      = "api-gateway"
-      image     = "${aws_ecr_repository.api_gateway.repository_url}:latest"
+      name      = "inventory-database"
+      image     = "postgres:13-alpine"
       memory    = 512
       essential = true
-      links     = ["inventory-app", "billing-app"]
+      environment = [
+        { name = "POSTGRES_DB", value = "inventory" },
+        { name = "POSTGRES_USER", value = "inventoryuser" },
+        { name = "POSTGRES_PASSWORD", value = "inventorypassword" }
+      ]
+    },
+    {
+      name      = "inventory-app"
+      image     = "${aws_ecr_repository.inventory_app.repository_url}:latest"
+      memory    = 512
+      essential = true
+      links     = ["inventory-database"]
       portMappings = [
         {
-          containerPort = 3000
-          hostPort      = 80
+          containerPort = 8080
+          hostPort      = 8081
           protocol      = "tcp"
         }
       ]
       environment = [
-        { name = "INVENTORY_SERVICE_URL", value = "http://inventory-app:8080" },
-        { name = "BILLING_SERVICE_URL", value = "http://billing-app:8080" },
-        { name = "PORT", value = "3000" }
+        { name = "INVENTORY_DB_HOST", value = "inventory-database" },
+        { name = "INVENTORY_DB_PORT", value = "5432" },
+        { name = "INVENTORY_DB_NAME", value = "inventory" },
+        { name = "INVENTORY_DB_USER", value = "inventoryuser" },
+        { name = "INVENTORY_DB_PASSWORD", value = "inventorypassword" },
+        { name = "INVENTORY_PORT", value = "8080" }
       ]
     }
   ])
 }
 
 # ==========================================
-# ECS Service
+# ECS Services
 # ==========================================
-resource "aws_ecs_service" "full_stack_service" {
-  name            = "full-stack-service"
+resource "aws_ecs_service" "api_gateway_service" {
+  name            = "api-gateway-service"
   cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.full_stack.arn
+  task_definition = aws_ecs_task_definition.api_gateway.arn
   desired_count   = 1
   launch_type     = "EC2"
 
@@ -207,4 +238,20 @@ resource "aws_ecs_service" "full_stack_service" {
     container_name   = "api-gateway"
     container_port   = 3000
   }
+}
+
+resource "aws_ecs_service" "billing_service" {
+  name            = "billing-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.billing_stack.arn
+  desired_count   = 1
+  launch_type     = "EC2"
+}
+
+resource "aws_ecs_service" "inventory_service" {
+  name            = "inventory-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.inventory_stack.arn
+  desired_count   = 1
+  launch_type     = "EC2"
 }
