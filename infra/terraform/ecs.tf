@@ -65,9 +65,9 @@ resource "aws_launch_template" "ecs_lt" {
 
 resource "aws_autoscaling_group" "ecs_asg" {
   vpc_zone_identifier = [aws_subnet.public_1.id, aws_subnet.public_2.id]
-  desired_capacity    = 1
-  max_size            = 1
-  min_size            = 1
+  desired_capacity    = 3
+  max_size            = 3
+  min_size            = 3
 
   launch_template {
     id      = aws_launch_template.ecs_lt.id
@@ -98,24 +98,27 @@ resource "aws_ecs_task_definition" "full_stack" {
   requires_compatibilities = ["EC2"]
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
 
-  # We carefully limit memory to fit inside 2 GiB (2048 MB)
+  # Three t3.small instances = 6 GiB total RAM
+  # Six services × 512 MiB = 3 GiB container memory
+  # Placement strategy allows optimal distribution across nodes:
+  # Instance 1: api-gateway (512 MiB)
+  # Instance 2: billing-app + billing-database + rabbitmq (1536 MiB)
+  # Instance 3: inventory-app + inventory-database (1024 MiB)
   container_definitions = jsonencode([
     {
       name      = "rabbitmq"
-      image     = "rabbitmq:3-alpine"
-      memory    = 100
-      essential = false
+      image     = "rabbitmq:3-management-alpine"
+      memory    = 512
+      essential = true
       environment = [
         { name = "RABBITMQ_DEFAULT_USER", value = "rabbitmq_user" },
-        { name = "RABBITMQ_DEFAULT_PASS", value = "rabbitmq_password" },
-        { name = "RABBITMQ_VM_MEMORY_HIGH_WATERMARK", value = "0.2" },
-        { name = "RABBITMQ_MAX_PROCESSES", value = "1024" }
+        { name = "RABBITMQ_DEFAULT_PASS", value = "rabbitmq_password" }
       ]
     },
     {
       name      = "inventory-database"
       image     = "postgres:13-alpine"
-      memory    = 100
+      memory    = 512
       essential = true
       environment = [
         { name = "POSTGRES_DB", value = "inventory" },
@@ -126,7 +129,7 @@ resource "aws_ecs_task_definition" "full_stack" {
     {
       name      = "billing-database"
       image     = "postgres:13-alpine"
-      memory    = 100
+      memory    = 512
       essential = true
       environment = [
         { name = "POSTGRES_DB", value = "billing" },
@@ -137,7 +140,7 @@ resource "aws_ecs_task_definition" "full_stack" {
     {
       name      = "inventory-app"
       image     = "${aws_ecr_repository.inventory_app.repository_url}:latest"
-      memory    = 48
+      memory    = 512
       essential = true
       links     = ["inventory-database"]
       environment = [
@@ -152,8 +155,8 @@ resource "aws_ecs_task_definition" "full_stack" {
     {
       name      = "billing-app"
       image     = "${aws_ecr_repository.billing_app.repository_url}:latest"
-      memory    = 48
-      essential = false
+      memory    = 512
+      essential = true
       links     = ["billing-database", "rabbitmq"]
       environment = [
         { name = "BILLING_DB_HOST", value = "billing-database" },
@@ -170,12 +173,13 @@ resource "aws_ecs_task_definition" "full_stack" {
     {
       name      = "api-gateway"
       image     = "${aws_ecr_repository.api_gateway.repository_url}:latest"
-      memory    = 64
+      memory    = 512
       essential = true
+      links     = ["inventory-app", "billing-app"]
       portMappings = [
         {
           containerPort = 3000
-          hostPort      = 3000
+          hostPort      = 80
           protocol      = "tcp"
         }
       ]
