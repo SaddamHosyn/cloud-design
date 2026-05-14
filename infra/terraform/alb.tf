@@ -9,14 +9,17 @@ resource "aws_lb" "main" {
 
 # Target Group for API Gateway
 resource "aws_lb_target_group" "api_gateway" {
-  name        = "api-gateway-tg"
+  name        = "api-gateway-tg-ip"
   port        = 3000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
-  target_type = "instance"
+  target_type = "ip"
 
   health_check {
     path = "/health"
+  }
+   lifecycle {
+    create_before_destroy = true 
   }
 }
 

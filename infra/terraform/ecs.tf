@@ -39,7 +39,6 @@ resource "aws_ecs_cluster" "main" {
 # ==========================================
 # EC2 Instance (t3.small)
 # ==========================================
-# Get the latest ECS-optimized Amazon Linux AMI
 data "aws_ssm_parameter" "ecs_ami" {
   name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
 }
@@ -55,7 +54,6 @@ resource "aws_launch_template" "ecs_lt" {
 
   vpc_security_group_ids = [aws_security_group.ecs_sg.id]
 
-  # User data to register the EC2 instance with our ECS cluster
   user_data = base64encode(<<-EOF
               #!/bin/bash
               echo ECS_CLUSTER=${aws_ecs_cluster.main.name} >> /etc/ecs/ecs.config
@@ -88,13 +86,17 @@ resource "aws_ecs_cluster_capacity_providers" "main" {
 }
 
 # ==========================================
-# TASK DEFINITION 1: API Gateway (Instance 1)
+# TASK DEFINITION 1: API Gateway
 # ==========================================
 resource "aws_ecs_task_definition" "api_gateway" {
   family                   = "api-gateway-task"
-  network_mode             = "bridge"
+  network_mode             = "awsvpc"
   requires_compatibilities = ["EC2"]
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+  
+  # awsvpc mode requires Task-level CPU and Memory
+  cpu                      = "256"
+  memory                   = "512"
 
   container_definitions = jsonencode([
     {
@@ -105,27 +107,35 @@ resource "aws_ecs_task_definition" "api_gateway" {
       portMappings = [
         {
           containerPort = 3000
-          hostPort      = 80
+          hostPort      = 3000 # In awsvpc mode, containerPort and hostPort should be identical
           protocol      = "tcp"
         }
       ]
       environment = [
         { name = "INVENTORY_SERVICE_URL", value = "http://inventory-app.local:8080" },
         { name = "BILLING_SERVICE_URL", value = "http://billing-app.local:8080" },
-        { name = "PORT", value = "3000" }
+        { name = "PORT", value = "3000" },
+
+        { name = "RABBITMQ_HOST", value = "billing-app.local" },
+        { name = "RABBITMQ_PORT", value = "5672" },
+        { name = "RABBITMQ_USER", value = "rabbitmq_user" },
+        { name = "RABBITMQ_PASSWORD", value = "rabbitmq_password" }
       ]
     }
   ])
 }
 
 # ==========================================
-# TASK DEFINITION 2: Billing Stack (Instance 2)
+# TASK DEFINITION 2: Billing Stack
 # ==========================================
 resource "aws_ecs_task_definition" "billing_stack" {
   family                   = "billing-stack-task"
-  network_mode             = "bridge"
+  network_mode             = "awsvpc"
   requires_compatibilities = ["EC2"]
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+  
+  cpu                      = "512"
+  memory                   = "1536"
 
   container_definitions = jsonencode([
     {
@@ -154,7 +164,6 @@ resource "aws_ecs_task_definition" "billing_stack" {
       image     = "${aws_ecr_repository.billing_app.repository_url}:latest"
       memory    = 512
       essential = true
-      links     = ["billing-database", "rabbitmq"]
       portMappings = [
         {
           containerPort = 8080
@@ -163,13 +172,13 @@ resource "aws_ecs_task_definition" "billing_stack" {
         }
       ]
       environment = [
-        { name = "BILLING_DB_HOST", value = "billing-database" },
+        { name = "BILLING_DB_HOST", value = "localhost" }, # In awsvpc, containers in the same task communicate via localhost
         { name = "BILLING_DB_PORT", value = "5432" },
         { name = "BILLING_DB_NAME", value = "billing" },
         { name = "BILLING_DB_USER", value = "billinguser" },
         { name = "BILLING_DB_PASSWORD", value = "billingpassword" },
         { name = "BILLING_PORT", value = "8080" },
-        { name = "RABBITMQ_HOST", value = "rabbitmq" },
+        { name = "RABBITMQ_HOST", value = "localhost" }, # Same here
         { name = "RABBITMQ_USER", value = "rabbitmq_user" },
         { name = "RABBITMQ_PASSWORD", value = "rabbitmq_password" }
       ]
@@ -178,13 +187,16 @@ resource "aws_ecs_task_definition" "billing_stack" {
 }
 
 # ==========================================
-# TASK DEFINITION 3: Inventory Stack (Instance 3)
+# TASK DEFINITION 3: Inventory Stack
 # ==========================================
 resource "aws_ecs_task_definition" "inventory_stack" {
   family                   = "inventory-stack-task"
-  network_mode             = "bridge"
+  network_mode             = "awsvpc"
   requires_compatibilities = ["EC2"]
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+  
+  cpu                      = "512"
+  memory                   = "1024"
 
   container_definitions = jsonencode([
     {
@@ -203,16 +215,15 @@ resource "aws_ecs_task_definition" "inventory_stack" {
       image     = "${aws_ecr_repository.inventory_app.repository_url}:latest"
       memory    = 512
       essential = true
-      links     = ["inventory-database"]
       portMappings = [
         {
           containerPort = 8080
-          hostPort      = 8081
+          hostPort      = 8080
           protocol      = "tcp"
         }
       ]
       environment = [
-        { name = "INVENTORY_DB_HOST", value = "inventory-database" },
+        { name = "INVENTORY_DB_HOST", value = "localhost" }, # awsvpc mode localhost routing
         { name = "INVENTORY_DB_PORT", value = "5432" },
         { name = "INVENTORY_DB_NAME", value = "inventory" },
         { name = "INVENTORY_DB_USER", value = "inventoryuser" },
@@ -233,6 +244,11 @@ resource "aws_ecs_service" "api_gateway_service" {
   desired_count   = 1
   launch_type     = "EC2"
 
+  network_configuration {
+    subnets         = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+    security_groups = [aws_security_group.ecs_sg.id]
+  }
+
   load_balancer {
     target_group_arn = aws_lb_target_group.api_gateway.arn
     container_name   = "api-gateway"
@@ -246,6 +262,15 @@ resource "aws_ecs_service" "billing_service" {
   task_definition = aws_ecs_task_definition.billing_stack.arn
   desired_count   = 1
   launch_type     = "EC2"
+
+  network_configuration {
+    subnets         = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+    security_groups = [aws_security_group.ecs_sg.id]
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.billing.arn
+  }
 }
 
 resource "aws_ecs_service" "inventory_service" {
@@ -254,4 +279,59 @@ resource "aws_ecs_service" "inventory_service" {
   task_definition = aws_ecs_task_definition.inventory_stack.arn
   desired_count   = 1
   launch_type     = "EC2"
+
+  network_configuration {
+    subnets         = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+    security_groups = [aws_security_group.ecs_sg.id]
+  }
+
+    service_registries {
+    registry_arn   = aws_service_discovery_service.inventory.arn
+  }
+}
+
+# ==========================================
+# Service Discovery (Cloud Map)
+# ==========================================
+resource "aws_service_discovery_private_dns_namespace" "local" {
+  name        = "local"
+  description = "Private DNS namespace for microservices"
+  vpc         = aws_subnet.public_1.vpc_id
+}
+
+# ==========================================
+# Service Discovery Records
+# ==========================================
+resource "aws_service_discovery_service" "billing" {
+  name         = "billing-app"
+  namespace_id = aws_service_discovery_private_dns_namespace.local.id
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.local.id
+    dns_records {
+      ttl  = 10
+      type = "A" # Type A works with awsvpc mode
+    }
+    routing_policy = "MULTIVALUE"
+  }
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
+resource "aws_service_discovery_service" "inventory" {
+  name = "inventory-app"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.local.id
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
 }

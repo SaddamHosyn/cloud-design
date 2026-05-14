@@ -100,6 +100,15 @@ resource "aws_security_group" "ecs_sg" {
     security_groups = [aws_security_group.alb_sg.id]
   }
 
+  # Allow ECS tasks to communicate with each other (East-west traffic)
+  ingress {
+    from_port       = 0
+    to_port         = 65535
+    protocol        = "tcp"
+    self            = true
+    description     = "Allow internal east-west traffic between ECS tasks"
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
