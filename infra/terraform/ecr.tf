@@ -4,6 +4,10 @@ resource "aws_ecr_repository" "inventory_app" {
   image_tag_mutability = "MUTABLE"
   force_delete         = true # Automatically deletes images when we destroy the project
 
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
   tags = {
     Name = "inventory-app-repo"
   }
@@ -15,6 +19,10 @@ resource "aws_ecr_repository" "api_gateway" {
   image_tag_mutability = "MUTABLE"
   force_delete         = true
 
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
   tags = {
     Name = "api-gateway-repo"
   }
@@ -25,6 +33,10 @@ resource "aws_ecr_repository" "billing_app" {
   name                 = "cloud-design-billing-app"
   image_tag_mutability = "MUTABLE"
   force_delete         = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
 
   tags = {
     Name = "billing-app-repo"

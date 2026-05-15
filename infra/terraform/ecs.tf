@@ -1,16 +1,67 @@
 # ==========================================
+# CloudWatch Log Group & Region
+# ==========================================
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name              = "/ecs/cloud-design"
+  retention_in_days = 7
+}
+
+data "aws_region" "current" {}
+
+# ==========================================
+# Secrets Setup
+# ==========================================
+resource "random_password" "rabbitmq_password" {
+  length  = 16
+  special = false
+}
+resource "aws_ssm_parameter" "rabbitmq_password" {
+  name  = "/cloud-design/rabbitmq/password"
+  type  = "SecureString"
+  value = random_password.rabbitmq_password.result
+}
+
+resource "random_password" "billing_db_password" {
+  length  = 16
+  special = false
+}
+resource "aws_ssm_parameter" "billing_db_password" {
+  name  = "/cloud-design/billing-db/password"
+  type  = "SecureString"
+  value = random_password.billing_db_password.result
+}
+
+resource "random_password" "inventory_db_password" {
+  length  = 16
+  special = false
+}
+resource "aws_ssm_parameter" "inventory_db_password" {
+  name  = "/cloud-design/inventory-db/password"
+  type  = "SecureString"
+  value = random_password.inventory_db_password.result
+}
+
+# ==========================================
 # IAM Roles for ECS and EC2
 # ==========================================
 resource "aws_iam_role" "ecs_instance_role" {
   name = "ecs_instance_role"
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = [{ Action = "sts:AssumeRole", Effect = "Allow", Principal = { Service = "ec2.amazonaws.com" } }]
   })
 }
 resource "aws_iam_role_policy_attachment" "ecs_instance_role_policy" {
   role       = aws_iam_role.ecs_instance_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+resource "aws_iam_role_policy_attachment" "ecs_instance_efs_policy" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientReadWriteAccess"
+}
+resource "aws_iam_role_policy_attachment" "ecs_instance_ssm_policy" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
   name = "ecs_instance_profile"
@@ -20,13 +71,31 @@ resource "aws_iam_instance_profile" "ecs_instance_profile" {
 resource "aws_iam_role" "ecs_execution_role" {
   name = "ecs_execution_role"
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = [{ Action = "sts:AssumeRole", Effect = "Allow", Principal = { Service = "ecs-tasks.amazonaws.com" } }]
   })
 }
 resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   role       = aws_iam_role.ecs_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+resource "aws_iam_role_policy" "ecs_execution_secrets" {
+  name = "ecs_execution_secrets_policy"
+  role = aws_iam_role.ecs_execution_role.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = ["ssm:GetParameters", "ssm:GetParameter"]
+        Resource = [
+          aws_ssm_parameter.rabbitmq_password.arn,
+          aws_ssm_parameter.billing_db_password.arn,
+          aws_ssm_parameter.inventory_db_password.arn
+        ]
+      }
+    ]
+  })
 }
 
 # ==========================================
@@ -37,7 +106,7 @@ resource "aws_ecs_cluster" "main" {
 }
 
 # ==========================================
-# EC2 Instance (t3.small)
+# EC2 Launch Template & ASG
 # ==========================================
 data "aws_ssm_parameter" "ecs_ami" {
   name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id"
@@ -46,7 +115,7 @@ data "aws_ssm_parameter" "ecs_ami" {
 resource "aws_launch_template" "ecs_lt" {
   name_prefix   = "ecs-template"
   image_id      = data.aws_ssm_parameter.ecs_ami.value
-  instance_type = "t3.small"
+  instance_type = "t3.small" # Keeping exactly what you requested
 
   iam_instance_profile {
     name = aws_iam_instance_profile.ecs_instance_profile.name
@@ -57,12 +126,13 @@ resource "aws_launch_template" "ecs_lt" {
   user_data = base64encode(<<-EOF
               #!/bin/bash
               echo ECS_CLUSTER=${aws_ecs_cluster.main.name} >> /etc/ecs/ecs.config
+              yum install -y amazon-efs-utils
               EOF
   )
 }
 
 resource "aws_autoscaling_group" "ecs_asg" {
-  vpc_zone_identifier = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+  vpc_zone_identifier = [aws_subnet.private_1.id, aws_subnet.private_2.id]
   desired_capacity    = 3
   max_size            = 3
   min_size            = 3
@@ -70,6 +140,12 @@ resource "aws_autoscaling_group" "ecs_asg" {
   launch_template {
     id      = aws_launch_template.ecs_lt.id
     version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "ecs-instance"
+    propagate_at_launch = true
   }
 }
 
@@ -81,161 +157,228 @@ resource "aws_ecs_capacity_provider" "ec2" {
 }
 
 resource "aws_ecs_cluster_capacity_providers" "main" {
-  cluster_name = aws_ecs_cluster.main.name
+  cluster_name       = aws_ecs_cluster.main.name
   capacity_providers = [aws_ecs_capacity_provider.ec2.name]
 }
 
 # ==========================================
-# TASK DEFINITION 1: API Gateway
+# TASK DEFINITIONS (Reverted to awsvpc)
 # ==========================================
 resource "aws_ecs_task_definition" "api_gateway" {
   family                   = "api-gateway-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["EC2"]
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
-  
-  # awsvpc mode requires Task-level CPU and Memory
   cpu                      = "256"
   memory                   = "512"
 
   container_definitions = jsonencode([
     {
       name      = "api-gateway"
-      image     = "${aws_ecr_repository.api_gateway.repository_url}:latest"
+      image     = "${aws_ecr_repository.api_gateway.repository_url}:v1"
       memory    = 512
       essential = true
-      portMappings = [
-        {
-          containerPort = 3000
-          hostPort      = 3000 # In awsvpc mode, containerPort and hostPort should be identical
-          protocol      = "tcp"
-        }
-      ]
+      portMappings = [{ containerPort = 3000, hostPort = 3000, protocol = "tcp" }]
       environment = [
         { name = "INVENTORY_SERVICE_URL", value = "http://inventory-app.local:8080" },
-        { name = "BILLING_SERVICE_URL", value = "http://billing-app.local:8080" },
-        { name = "PORT", value = "3000" },
-
-        { name = "RABBITMQ_HOST", value = "billing-app.local" },
-        { name = "RABBITMQ_PORT", value = "5672" },
-        { name = "RABBITMQ_USER", value = "rabbitmq_user" },
-        { name = "RABBITMQ_PASSWORD", value = "rabbitmq_password" }
+        { name = "BILLING_SERVICE_URL",   value = "http://billing-app.local:8080" },
+        { name = "PORT",                  value = "3000" },
+        { name = "RABBITMQ_HOST",         value = "billing-app.local" },
+        { name = "RABBITMQ_PORT",         value = "5672" },
+        { name = "RABBITMQ_USER",         value = "rabbitmq_user" }
       ]
+      secrets = [{ name = "RABBITMQ_PASSWORD", valueFrom = aws_ssm_parameter.rabbitmq_password.arn }]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-stream-prefix" = "api-gateway"
+        }
+      }
     }
   ])
 }
 
-# ==========================================
-# TASK DEFINITION 2: Billing Stack
-# ==========================================
 resource "aws_ecs_task_definition" "billing_stack" {
   family                   = "billing-stack-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["EC2"]
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
-  
   cpu                      = "512"
-  memory                   = "1536"
+  memory                   = "2048"
+
+  volume {
+    name = "billing-db-data"
+    efs_volume_configuration {
+      file_system_id     = aws_efs_file_system.db_data.id
+      transit_encryption = "ENABLED"
+      authorization_config {
+        access_point_id = aws_efs_access_point.billing_db.id
+        iam             = "DISABLED"
+      }
+    }
+  }
+
+  volume {
+    name = "rabbitmq-data"
+    efs_volume_configuration {
+      file_system_id     = aws_efs_file_system.db_data.id
+      transit_encryption = "ENABLED"
+      authorization_config {
+        access_point_id = aws_efs_access_point.rabbitmq.id
+        iam             = "DISABLED"
+      }
+    }
+  }
 
   container_definitions = jsonencode([
     {
-      name      = "rabbitmq"
-      image     = "rabbitmq:3-management-alpine"
-      memory    = 512
-      essential = true
+      name              = "rabbitmq"
+      image             = "rabbitmq:3-management-alpine"
+      memory            = 512
+      essential         = true
+      user              = "100:101"
       environment = [
         { name = "RABBITMQ_DEFAULT_USER", value = "rabbitmq_user" },
-        { name = "RABBITMQ_DEFAULT_PASS", value = "rabbitmq_password" }
+        { name = "RABBITMQ_MNESIA_DIR", value = "/data/rabbitmq/mnesia" },
+        { name = "RABBITMQ_VM_MEMORY_HIGH_WATERMARK", value = "0.8" }
       ]
-    },
-    {
-      name      = "billing-database"
-      image     = "postgres:13-alpine"
-      memory    = 512
-      essential = true
-      environment = [
-        { name = "POSTGRES_DB", value = "billing" },
-        { name = "POSTGRES_USER", value = "billinguser" },
-        { name = "POSTGRES_PASSWORD", value = "billingpassword" }
-      ]
-    },
-    {
-      name      = "billing-app"
-      image     = "${aws_ecr_repository.billing_app.repository_url}:latest"
-      memory    = 512
-      essential = true
-      portMappings = [
-        {
-          containerPort = 8080
-          hostPort      = 8080
-          protocol      = "tcp"
+      secrets     = [{ name = "RABBITMQ_DEFAULT_PASS", valueFrom = aws_ssm_parameter.rabbitmq_password.arn }]
+      mountPoints = [{ sourceVolume = "rabbitmq-data", containerPath = "/data/rabbitmq", readOnly = false }]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-stream-prefix" = "rabbitmq"
         }
-      ]
+      }
+    },
+    {
+      name              = "billing-database"
+      image             = "postgres:13-alpine"
+      memory            = 640
+      essential         = true
+      user              = "70:70"
       environment = [
-        { name = "BILLING_DB_HOST", value = "localhost" }, # In awsvpc, containers in the same task communicate via localhost
+        { name = "POSTGRES_DB",   value = "billing" },
+        { name = "POSTGRES_USER", value = "billinguser" },
+        { name = "PGDATA",        value = "/data/billing/pgdata" }
+      ]
+      secrets     = [{ name = "POSTGRES_PASSWORD", valueFrom = aws_ssm_parameter.billing_db_password.arn }]
+      mountPoints = [{ sourceVolume = "billing-db-data", containerPath = "/data/billing", readOnly = false }]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-stream-prefix" = "billing-db"
+        }
+      }
+    },
+    {
+      name              = "billing-app"
+      image             = "${aws_ecr_repository.billing_app.repository_url}:v1"
+      memory            = 896
+      essential         = true
+      portMappings = [{ containerPort = 8080, hostPort = 8080, protocol = "tcp" }]
+      environment = [
+        { name = "BILLING_DB_HOST", value = "localhost" },
         { name = "BILLING_DB_PORT", value = "5432" },
         { name = "BILLING_DB_NAME", value = "billing" },
         { name = "BILLING_DB_USER", value = "billinguser" },
-        { name = "BILLING_DB_PASSWORD", value = "billingpassword" },
-        { name = "BILLING_PORT", value = "8080" },
-        { name = "RABBITMQ_HOST", value = "localhost" }, # Same here
-        { name = "RABBITMQ_USER", value = "rabbitmq_user" },
-        { name = "RABBITMQ_PASSWORD", value = "rabbitmq_password" }
+        { name = "BILLING_PORT",    value = "8080" },
+        { name = "RABBITMQ_HOST",   value = "localhost" },
+        { name = "RABBITMQ_USER",   value = "rabbitmq_user" }
       ]
+      secrets = [
+        { name = "BILLING_DB_PASSWORD", valueFrom = aws_ssm_parameter.billing_db_password.arn },
+        { name = "RABBITMQ_PASSWORD",   valueFrom = aws_ssm_parameter.rabbitmq_password.arn }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-stream-prefix" = "billing-app"
+        }
+      }
     }
   ])
 }
 
-# ==========================================
-# TASK DEFINITION 3: Inventory Stack
-# ==========================================
 resource "aws_ecs_task_definition" "inventory_stack" {
   family                   = "inventory-stack-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["EC2"]
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
-  
   cpu                      = "512"
   memory                   = "1024"
 
+  volume {
+    name = "inventory-db-data"
+    efs_volume_configuration {
+      file_system_id     = aws_efs_file_system.db_data.id
+      transit_encryption = "ENABLED"
+      authorization_config {
+        access_point_id = aws_efs_access_point.inventory_db.id
+        iam             = "DISABLED"
+      }
+    }
+  }
+
   container_definitions = jsonencode([
     {
-      name      = "inventory-database"
-      image     = "postgres:13-alpine"
-      memory    = 512
-      essential = true
+      name              = "inventory-database"
+      image             = "postgres:13-alpine"
+      memory            = 512
+      essential         = true
+      user              = "70:70"
       environment = [
-        { name = "POSTGRES_DB", value = "inventory" },
+        { name = "POSTGRES_DB",   value = "inventory" },
         { name = "POSTGRES_USER", value = "inventoryuser" },
-        { name = "POSTGRES_PASSWORD", value = "inventorypassword" }
+        { name = "PGDATA",        value = "/data/inventory/pgdata" }
       ]
+      secrets     = [{ name = "POSTGRES_PASSWORD", valueFrom = aws_ssm_parameter.inventory_db_password.arn }]
+      mountPoints = [{ sourceVolume = "inventory-db-data", containerPath = "/data/inventory", readOnly = false }]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-stream-prefix" = "inventory-db"
+        }
+      }
     },
     {
-      name      = "inventory-app"
-      image     = "${aws_ecr_repository.inventory_app.repository_url}:latest"
-      memory    = 512
-      essential = true
-      portMappings = [
-        {
-          containerPort = 8080
-          hostPort      = 8080
-          protocol      = "tcp"
-        }
-      ]
+      name              = "inventory-app"
+      image             = "${aws_ecr_repository.inventory_app.repository_url}:v1"
+      memory            = 512
+      essential         = true
+      portMappings = [{ containerPort = 8080, hostPort = 8080, protocol = "tcp" }]
       environment = [
-        { name = "INVENTORY_DB_HOST", value = "localhost" }, # awsvpc mode localhost routing
+        { name = "INVENTORY_DB_HOST", value = "localhost" },
         { name = "INVENTORY_DB_PORT", value = "5432" },
         { name = "INVENTORY_DB_NAME", value = "inventory" },
         { name = "INVENTORY_DB_USER", value = "inventoryuser" },
-        { name = "INVENTORY_DB_PASSWORD", value = "inventorypassword" },
-        { name = "INVENTORY_PORT", value = "8080" }
+        { name = "INVENTORY_PORT",    value = "8080" }
       ]
+      secrets = [{ name = "INVENTORY_DB_PASSWORD", valueFrom = aws_ssm_parameter.inventory_db_password.arn }]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-stream-prefix" = "inventory-app"
+        }
+      }
     }
   ])
 }
 
 # ==========================================
-# ECS Services
+# ECS Services (THE FIX IS HERE)
 # ==========================================
 resource "aws_ecs_service" "api_gateway_service" {
   name            = "api-gateway-service"
@@ -244,8 +387,12 @@ resource "aws_ecs_service" "api_gateway_service" {
   desired_count   = 1
   launch_type     = "EC2"
 
+  # THIS PREVENTS THE DEADLOCK: Kills old task before starting new one
+  deployment_minimum_healthy_percent = 0
+  deployment_maximum_percent         = 100
+
   network_configuration {
-    subnets         = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+    subnets         = [aws_subnet.private_1.id, aws_subnet.private_2.id]
     security_groups = [aws_security_group.ecs_sg.id]
   }
 
@@ -263,8 +410,17 @@ resource "aws_ecs_service" "billing_service" {
   desired_count   = 1
   launch_type     = "EC2"
 
+  # THIS PREVENTS THE DEADLOCK
+  deployment_minimum_healthy_percent = 0
+  deployment_maximum_percent         = 100
+
+  depends_on = [
+    aws_efs_mount_target.private_1,
+    aws_efs_mount_target.private_2
+  ]
+
   network_configuration {
-    subnets         = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+    subnets         = [aws_subnet.private_1.id, aws_subnet.private_2.id]
     security_groups = [aws_security_group.ecs_sg.id]
   }
 
@@ -280,48 +436,36 @@ resource "aws_ecs_service" "inventory_service" {
   desired_count   = 1
   launch_type     = "EC2"
 
+  # THIS PREVENTS THE DEADLOCK
+  deployment_minimum_healthy_percent = 0
+  deployment_maximum_percent         = 100
+
+  depends_on = [
+    aws_efs_mount_target.private_1,
+    aws_efs_mount_target.private_2
+  ]
+
   network_configuration {
-    subnets         = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+    subnets         = [aws_subnet.private_1.id, aws_subnet.private_2.id]
     security_groups = [aws_security_group.ecs_sg.id]
   }
 
-    service_registries {
-    registry_arn   = aws_service_discovery_service.inventory.arn
+  service_registries {
+    registry_arn = aws_service_discovery_service.inventory.arn
   }
 }
 
 # ==========================================
-# Service Discovery (Cloud Map)
+# Service Discovery (Cloud Map) - Reverted to A records
 # ==========================================
 resource "aws_service_discovery_private_dns_namespace" "local" {
   name        = "local"
   description = "Private DNS namespace for microservices"
-  vpc         = aws_subnet.public_1.vpc_id
+  vpc         = aws_vpc.main.id
 }
 
-# ==========================================
-# Service Discovery Records
-# ==========================================
 resource "aws_service_discovery_service" "billing" {
-  name         = "billing-app"
-  namespace_id = aws_service_discovery_private_dns_namespace.local.id
-
-  dns_config {
-    namespace_id = aws_service_discovery_private_dns_namespace.local.id
-    dns_records {
-      ttl  = 10
-      type = "A" # Type A works with awsvpc mode
-    }
-    routing_policy = "MULTIVALUE"
-  }
-  health_check_custom_config {
-    failure_threshold = 1
-  }
-}
-
-resource "aws_service_discovery_service" "inventory" {
-  name = "inventory-app"
-
+  name = "billing-app"
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.local.id
     dns_records {
@@ -330,8 +474,18 @@ resource "aws_service_discovery_service" "inventory" {
     }
     routing_policy = "MULTIVALUE"
   }
+  health_check_custom_config { failure_threshold = 1 }
+}
 
-  health_check_custom_config {
-    failure_threshold = 1
+resource "aws_service_discovery_service" "inventory" {
+  name = "inventory-app"
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.local.id
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+    routing_policy = "MULTIVALUE"
   }
+  health_check_custom_config { failure_threshold = 1 }
 }
