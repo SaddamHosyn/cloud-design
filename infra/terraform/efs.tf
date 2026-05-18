@@ -57,7 +57,7 @@ resource "aws_efs_access_point" "billing_db" {
   }
 
   root_directory {
-    path = "/billing-db-data-v3"
+    path = "/billing-db-data-v5"
     creation_info {
       owner_uid   = 70
       owner_gid   = 70
@@ -79,7 +79,7 @@ resource "aws_efs_access_point" "inventory_db" {
   }
 
   root_directory {
-    path = "/inventory-db-data-v3"
+    path = "/inventory-db-data-v5"
     creation_info {
       owner_uid   = 70
       owner_gid   = 70
@@ -96,15 +96,15 @@ resource "aws_efs_access_point" "rabbitmq" {
   file_system_id = aws_efs_file_system.db_data.id
 
   posix_user {
-    uid = 100
-    gid = 101
+    uid = 999
+    gid = 999
   }
 
   root_directory {
-    path = "/rabbitmq-data-v3"
+    path = "/rabbitmq-data-v5"
     creation_info {
-      owner_uid   = 100
-      owner_gid   = 101
+      owner_uid   = 999
+      owner_gid   = 999
       permissions = "0700"
     }
   }

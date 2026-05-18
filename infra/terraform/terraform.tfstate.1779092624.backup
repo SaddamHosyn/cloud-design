@@ -1,7 +1,7 @@
 {
   "version": 4,
   "terraform_version": "1.15.2",
-  "serial": 777,
+  "serial": 656,
   "lineage": "8e545170-3f9a-a8f5-7e55-ec1bb169ca45",
   "outputs": {
     "alb_url": {
@@ -121,378 +121,6 @@
     },
     {
       "mode": "managed",
-      "type": "aws_appautoscaling_policy",
-      "name": "api_gateway_cpu",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "alarm_arns": [
-              "arn:aws:cloudwatch:eu-north-1:011237053542:alarm:TargetTracking-service/cloud-design-cluster-v2/api-gateway-service-AlarmHigh-fcb7aa1a-a8bb-4cd1-879b-052f4aaebd0e",
-              "arn:aws:cloudwatch:eu-north-1:011237053542:alarm:TargetTracking-service/cloud-design-cluster-v2/api-gateway-service-AlarmLow-1175004a-f711-4096-942f-61fff2ac02cd"
-            ],
-            "arn": "arn:aws:autoscaling:eu-north-1:011237053542:scalingPolicy:22e530b2-1053-4ee3-a07f-2365b82f316e:resource/ecs/service/cloud-design-cluster-v2/api-gateway-service:policyName/api-gateway-cpu-scaling",
-            "id": "api-gateway-cpu-scaling",
-            "name": "api-gateway-cpu-scaling",
-            "policy_type": "TargetTrackingScaling",
-            "resource_id": "service/cloud-design-cluster-v2/api-gateway-service",
-            "scalable_dimension": "ecs:service:DesiredCount",
-            "service_namespace": "ecs",
-            "step_scaling_policy_configuration": [],
-            "target_tracking_scaling_policy_configuration": [
-              {
-                "customized_metric_specification": [],
-                "disable_scale_in": false,
-                "predefined_metric_specification": [
-                  {
-                    "predefined_metric_type": "ECSServiceAverageCPUUtilization",
-                    "resource_label": ""
-                  }
-                ],
-                "scale_in_cooldown": 300,
-                "scale_out_cooldown": 60,
-                "target_value": 70
-              }
-            ]
-          },
-          "sensitive_attributes": [],
-          "identity_schema_version": 0,
-          "private": "bnVsbA==",
-          "dependencies": [
-            "aws_appautoscaling_target.api_gateway",
-            "aws_cloudwatch_log_group.ecs_logs",
-            "aws_ecr_repository.api_gateway",
-            "aws_ecs_cluster.main",
-            "aws_ecs_service.api_gateway_service",
-            "aws_ecs_task_definition.api_gateway",
-            "aws_iam_role.ecs_execution_role",
-            "aws_lb_target_group.api_gateway",
-            "aws_security_group.alb_sg",
-            "aws_security_group.ecs_sg",
-            "aws_ssm_parameter.rabbitmq_password",
-            "aws_subnet.private_1",
-            "aws_subnet.private_2",
-            "aws_vpc.main",
-            "data.aws_region.current",
-            "random_password.rabbitmq_password"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
-      "type": "aws_appautoscaling_policy",
-      "name": "billing_cpu",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "alarm_arns": [
-              "arn:aws:cloudwatch:eu-north-1:011237053542:alarm:TargetTracking-service/cloud-design-cluster-v2/billing-service-AlarmHigh-05df3a50-c2b6-4d78-8dfd-b95d3e44a95c",
-              "arn:aws:cloudwatch:eu-north-1:011237053542:alarm:TargetTracking-service/cloud-design-cluster-v2/billing-service-AlarmLow-eecd6809-80cc-4313-989f-0f5d5889eaa7"
-            ],
-            "arn": "arn:aws:autoscaling:eu-north-1:011237053542:scalingPolicy:c6056d56-7f59-4a20-8da8-c62878d28141:resource/ecs/service/cloud-design-cluster-v2/billing-service:policyName/billing-cpu-scaling",
-            "id": "billing-cpu-scaling",
-            "name": "billing-cpu-scaling",
-            "policy_type": "TargetTrackingScaling",
-            "resource_id": "service/cloud-design-cluster-v2/billing-service",
-            "scalable_dimension": "ecs:service:DesiredCount",
-            "service_namespace": "ecs",
-            "step_scaling_policy_configuration": [],
-            "target_tracking_scaling_policy_configuration": [
-              {
-                "customized_metric_specification": [],
-                "disable_scale_in": false,
-                "predefined_metric_specification": [
-                  {
-                    "predefined_metric_type": "ECSServiceAverageCPUUtilization",
-                    "resource_label": ""
-                  }
-                ],
-                "scale_in_cooldown": 300,
-                "scale_out_cooldown": 60,
-                "target_value": 70
-              }
-            ]
-          },
-          "sensitive_attributes": [],
-          "identity_schema_version": 0,
-          "private": "bnVsbA==",
-          "dependencies": [
-            "aws_appautoscaling_target.billing",
-            "aws_cloudwatch_log_group.ecs_logs",
-            "aws_ecr_repository.billing_app",
-            "aws_ecs_cluster.main",
-            "aws_ecs_service.billing_service",
-            "aws_ecs_task_definition.billing_stack",
-            "aws_efs_access_point.billing_db",
-            "aws_efs_access_point.rabbitmq",
-            "aws_efs_file_system.db_data",
-            "aws_efs_mount_target.private_1",
-            "aws_efs_mount_target.private_2",
-            "aws_iam_role.ecs_execution_role",
-            "aws_security_group.alb_sg",
-            "aws_security_group.ecs_sg",
-            "aws_security_group.efs_sg",
-            "aws_service_discovery_private_dns_namespace.local",
-            "aws_service_discovery_service.billing",
-            "aws_ssm_parameter.billing_db_password",
-            "aws_ssm_parameter.rabbitmq_password",
-            "aws_subnet.private_1",
-            "aws_subnet.private_2",
-            "aws_vpc.main",
-            "data.aws_region.current",
-            "random_password.billing_db_password",
-            "random_password.rabbitmq_password"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
-      "type": "aws_appautoscaling_policy",
-      "name": "inventory_cpu",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "alarm_arns": [
-              "arn:aws:cloudwatch:eu-north-1:011237053542:alarm:TargetTracking-service/cloud-design-cluster-v2/inventory-service-AlarmHigh-1beac929-539a-40dd-877b-4574b71ed449",
-              "arn:aws:cloudwatch:eu-north-1:011237053542:alarm:TargetTracking-service/cloud-design-cluster-v2/inventory-service-AlarmLow-c3904689-76ab-4ed1-a5f0-09c8550d671e"
-            ],
-            "arn": "arn:aws:autoscaling:eu-north-1:011237053542:scalingPolicy:92b5cf6c-47cd-4f6f-a480-991078ab0466:resource/ecs/service/cloud-design-cluster-v2/inventory-service:policyName/inventory-cpu-scaling",
-            "id": "inventory-cpu-scaling",
-            "name": "inventory-cpu-scaling",
-            "policy_type": "TargetTrackingScaling",
-            "resource_id": "service/cloud-design-cluster-v2/inventory-service",
-            "scalable_dimension": "ecs:service:DesiredCount",
-            "service_namespace": "ecs",
-            "step_scaling_policy_configuration": [],
-            "target_tracking_scaling_policy_configuration": [
-              {
-                "customized_metric_specification": [],
-                "disable_scale_in": false,
-                "predefined_metric_specification": [
-                  {
-                    "predefined_metric_type": "ECSServiceAverageCPUUtilization",
-                    "resource_label": ""
-                  }
-                ],
-                "scale_in_cooldown": 300,
-                "scale_out_cooldown": 60,
-                "target_value": 70
-              }
-            ]
-          },
-          "sensitive_attributes": [],
-          "identity_schema_version": 0,
-          "private": "bnVsbA==",
-          "dependencies": [
-            "aws_appautoscaling_target.inventory",
-            "aws_cloudwatch_log_group.ecs_logs",
-            "aws_ecr_repository.inventory_app",
-            "aws_ecs_cluster.main",
-            "aws_ecs_service.inventory_service",
-            "aws_ecs_task_definition.inventory_stack",
-            "aws_efs_access_point.inventory_db",
-            "aws_efs_file_system.db_data",
-            "aws_efs_mount_target.private_1",
-            "aws_efs_mount_target.private_2",
-            "aws_iam_role.ecs_execution_role",
-            "aws_security_group.alb_sg",
-            "aws_security_group.ecs_sg",
-            "aws_security_group.efs_sg",
-            "aws_service_discovery_private_dns_namespace.local",
-            "aws_service_discovery_service.inventory",
-            "aws_ssm_parameter.inventory_db_password",
-            "aws_subnet.private_1",
-            "aws_subnet.private_2",
-            "aws_vpc.main",
-            "data.aws_region.current",
-            "random_password.inventory_db_password"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
-      "type": "aws_appautoscaling_target",
-      "name": "api_gateway",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "arn": "arn:aws:application-autoscaling:eu-north-1:011237053542:scalable-target/0ec522e530b210534ee3a07f2365b82f316e",
-            "id": "service/cloud-design-cluster-v2/api-gateway-service",
-            "max_capacity": 5,
-            "min_capacity": 1,
-            "resource_id": "service/cloud-design-cluster-v2/api-gateway-service",
-            "role_arn": "arn:aws:iam::011237053542:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService",
-            "scalable_dimension": "ecs:service:DesiredCount",
-            "service_namespace": "ecs",
-            "suspended_state": [
-              {
-                "dynamic_scaling_in_suspended": false,
-                "dynamic_scaling_out_suspended": false,
-                "scheduled_scaling_suspended": false
-              }
-            ],
-            "tags": {},
-            "tags_all": {
-              "Owner": "Team",
-              "Project": "CloudDesign"
-            }
-          },
-          "sensitive_attributes": [],
-          "identity_schema_version": 0,
-          "private": "bnVsbA==",
-          "dependencies": [
-            "aws_cloudwatch_log_group.ecs_logs",
-            "aws_ecr_repository.api_gateway",
-            "aws_ecs_cluster.main",
-            "aws_ecs_service.api_gateway_service",
-            "aws_ecs_task_definition.api_gateway",
-            "aws_iam_role.ecs_execution_role",
-            "aws_lb_target_group.api_gateway",
-            "aws_security_group.alb_sg",
-            "aws_security_group.ecs_sg",
-            "aws_ssm_parameter.rabbitmq_password",
-            "aws_subnet.private_1",
-            "aws_subnet.private_2",
-            "aws_vpc.main",
-            "data.aws_region.current",
-            "random_password.rabbitmq_password"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
-      "type": "aws_appautoscaling_target",
-      "name": "billing",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "arn": "arn:aws:application-autoscaling:eu-north-1:011237053542:scalable-target/0ec5c6056d567f594a208da8c62878d28141",
-            "id": "service/cloud-design-cluster-v2/billing-service",
-            "max_capacity": 5,
-            "min_capacity": 1,
-            "resource_id": "service/cloud-design-cluster-v2/billing-service",
-            "role_arn": "arn:aws:iam::011237053542:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService",
-            "scalable_dimension": "ecs:service:DesiredCount",
-            "service_namespace": "ecs",
-            "suspended_state": [
-              {
-                "dynamic_scaling_in_suspended": false,
-                "dynamic_scaling_out_suspended": false,
-                "scheduled_scaling_suspended": false
-              }
-            ],
-            "tags": {},
-            "tags_all": {
-              "Owner": "Team",
-              "Project": "CloudDesign"
-            }
-          },
-          "sensitive_attributes": [],
-          "identity_schema_version": 0,
-          "private": "bnVsbA==",
-          "dependencies": [
-            "aws_cloudwatch_log_group.ecs_logs",
-            "aws_ecr_repository.billing_app",
-            "aws_ecs_cluster.main",
-            "aws_ecs_service.billing_service",
-            "aws_ecs_task_definition.billing_stack",
-            "aws_efs_access_point.billing_db",
-            "aws_efs_access_point.rabbitmq",
-            "aws_efs_file_system.db_data",
-            "aws_efs_mount_target.private_1",
-            "aws_efs_mount_target.private_2",
-            "aws_iam_role.ecs_execution_role",
-            "aws_security_group.alb_sg",
-            "aws_security_group.ecs_sg",
-            "aws_security_group.efs_sg",
-            "aws_service_discovery_private_dns_namespace.local",
-            "aws_service_discovery_service.billing",
-            "aws_ssm_parameter.billing_db_password",
-            "aws_ssm_parameter.rabbitmq_password",
-            "aws_subnet.private_1",
-            "aws_subnet.private_2",
-            "aws_vpc.main",
-            "data.aws_region.current",
-            "random_password.billing_db_password",
-            "random_password.rabbitmq_password"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
-      "type": "aws_appautoscaling_target",
-      "name": "inventory",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 0,
-          "attributes": {
-            "arn": "arn:aws:application-autoscaling:eu-north-1:011237053542:scalable-target/0ec592b5cf6c47cd4f6fa480991078ab0466",
-            "id": "service/cloud-design-cluster-v2/inventory-service",
-            "max_capacity": 5,
-            "min_capacity": 1,
-            "resource_id": "service/cloud-design-cluster-v2/inventory-service",
-            "role_arn": "arn:aws:iam::011237053542:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService",
-            "scalable_dimension": "ecs:service:DesiredCount",
-            "service_namespace": "ecs",
-            "suspended_state": [
-              {
-                "dynamic_scaling_in_suspended": false,
-                "dynamic_scaling_out_suspended": false,
-                "scheduled_scaling_suspended": false
-              }
-            ],
-            "tags": {},
-            "tags_all": {
-              "Owner": "Team",
-              "Project": "CloudDesign"
-            }
-          },
-          "sensitive_attributes": [],
-          "identity_schema_version": 0,
-          "private": "bnVsbA==",
-          "dependencies": [
-            "aws_cloudwatch_log_group.ecs_logs",
-            "aws_ecr_repository.inventory_app",
-            "aws_ecs_cluster.main",
-            "aws_ecs_service.inventory_service",
-            "aws_ecs_task_definition.inventory_stack",
-            "aws_efs_access_point.inventory_db",
-            "aws_efs_file_system.db_data",
-            "aws_efs_mount_target.private_1",
-            "aws_efs_mount_target.private_2",
-            "aws_iam_role.ecs_execution_role",
-            "aws_security_group.alb_sg",
-            "aws_security_group.ecs_sg",
-            "aws_security_group.efs_sg",
-            "aws_service_discovery_private_dns_namespace.local",
-            "aws_service_discovery_service.inventory",
-            "aws_ssm_parameter.inventory_db_password",
-            "aws_subnet.private_1",
-            "aws_subnet.private_2",
-            "aws_vpc.main",
-            "data.aws_region.current",
-            "random_password.inventory_db_password"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
       "type": "aws_autoscaling_group",
       "name": "ecs_asg",
       "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
@@ -556,6 +184,11 @@
             "suspended_processes": [],
             "tag": [
               {
+                "key": "AmazonECSManaged",
+                "propagate_at_launch": true,
+                "value": ""
+              },
+              {
                 "key": "Name",
                 "propagate_at_launch": true,
                 "value": "ecs-instance"
@@ -602,7 +235,7 @@
           "schema_version": 0,
           "attributes": {
             "dashboard_arn": "arn:aws:cloudwatch::011237053542:dashboard/cloud-design-dashboard",
-            "dashboard_body": "{\"widgets\":[{\"height\":6,\"properties\":{\"metrics\":[[\"AWS/ECS\",\"CPUUtilization\",\"ClusterName\",\"cloud-design-cluster-v2\"]],\"period\":300,\"region\":\"eu-north-1\",\"stat\":\"Average\",\"title\":\"ECS Cluster CPU Utilization\"},\"type\":\"metric\",\"width\":12,\"x\":0,\"y\":0},{\"height\":6,\"properties\":{\"metrics\":[[\"AWS/ECS\",\"MemoryUtilization\",\"ClusterName\",\"cloud-design-cluster-v2\"]],\"period\":300,\"region\":\"eu-north-1\",\"stat\":\"Average\",\"title\":\"ECS Cluster Memory Utilization\"},\"type\":\"metric\",\"width\":12,\"x\":12,\"y\":0},{\"height\":6,\"properties\":{\"metrics\":[[\"AWS/ECS\",\"CPUUtilization\",\"ServiceName\",\"api-gateway-service\",\"ClusterName\",\"cloud-design-cluster-v2\"],[\"AWS/ECS\",\"CPUUtilization\",\"ServiceName\",\"billing-service\",\"ClusterName\",\"cloud-design-cluster-v2\"],[\"AWS/ECS\",\"CPUUtilization\",\"ServiceName\",\"inventory-service\",\"ClusterName\",\"cloud-design-cluster-v2\"]],\"period\":300,\"region\":\"eu-north-1\",\"stat\":\"Average\",\"title\":\"ECS Services CPU Utilization\"},\"type\":\"metric\",\"width\":12,\"x\":0,\"y\":6}]}",
+            "dashboard_body": "{\"widgets\":[{\"height\":6,\"properties\":{\"metrics\":[[\"AWS/ECS\",\"CPUUtilization\",\"ClusterName\",\"cloud-design-cluster\"]],\"period\":300,\"region\":\"eu-north-1\",\"stat\":\"Average\",\"title\":\"ECS Cluster CPU Utilization\"},\"type\":\"metric\",\"width\":12,\"x\":0,\"y\":0},{\"height\":6,\"properties\":{\"metrics\":[[\"AWS/ECS\",\"MemoryUtilization\",\"ClusterName\",\"cloud-design-cluster\"]],\"period\":300,\"region\":\"eu-north-1\",\"stat\":\"Average\",\"title\":\"ECS Cluster Memory Utilization\"},\"type\":\"metric\",\"width\":12,\"x\":12,\"y\":0},{\"height\":6,\"properties\":{\"metrics\":[[\"AWS/ECS\",\"CPUUtilization\",\"ServiceName\",\"api-gateway-service\",\"ClusterName\",\"cloud-design-cluster\"],[\"AWS/ECS\",\"CPUUtilization\",\"ServiceName\",\"billing-service\",\"ClusterName\",\"cloud-design-cluster\"],[\"AWS/ECS\",\"CPUUtilization\",\"ServiceName\",\"inventory-service\",\"ClusterName\",\"cloud-design-cluster\"]],\"period\":300,\"region\":\"eu-north-1\",\"stat\":\"Average\",\"title\":\"ECS Services CPU Utilization\"},\"type\":\"metric\",\"width\":12,\"x\":0,\"y\":6}]}",
             "dashboard_name": "cloud-design-dashboard",
             "id": "cloud-design-dashboard"
           },
@@ -1038,10 +671,10 @@
         {
           "schema_version": 0,
           "attributes": {
-            "arn": "arn:aws:ecs:eu-north-1:011237053542:cluster/cloud-design-cluster-v2",
+            "arn": "arn:aws:ecs:eu-north-1:011237053542:cluster/cloud-design-cluster",
             "configuration": [],
-            "id": "arn:aws:ecs:eu-north-1:011237053542:cluster/cloud-design-cluster-v2",
-            "name": "cloud-design-cluster-v2",
+            "id": "arn:aws:ecs:eu-north-1:011237053542:cluster/cloud-design-cluster",
+            "name": "cloud-design-cluster",
             "service_connect_defaults": [],
             "setting": [
               {
@@ -1073,9 +706,9 @@
             "capacity_providers": [
               "ec2-capacity-provider"
             ],
-            "cluster_name": "cloud-design-cluster-v2",
+            "cluster_name": "cloud-design-cluster",
             "default_capacity_provider_strategy": [],
-            "id": "cloud-design-cluster-v2"
+            "id": "cloud-design-cluster"
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
@@ -1099,312 +732,6 @@
     },
     {
       "mode": "managed",
-      "type": "aws_ecs_service",
-      "name": "api_gateway_service",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 1,
-          "attributes": {
-            "alarms": [],
-            "availability_zone_rebalancing": "DISABLED",
-            "capacity_provider_strategy": [],
-            "cluster": "arn:aws:ecs:eu-north-1:011237053542:cluster/cloud-design-cluster-v2",
-            "deployment_circuit_breaker": [
-              {
-                "enable": false,
-                "rollback": false
-              }
-            ],
-            "deployment_controller": [
-              {
-                "type": "ECS"
-              }
-            ],
-            "deployment_maximum_percent": 100,
-            "deployment_minimum_healthy_percent": 0,
-            "desired_count": 1,
-            "enable_ecs_managed_tags": false,
-            "enable_execute_command": false,
-            "force_delete": null,
-            "force_new_deployment": null,
-            "health_check_grace_period_seconds": 0,
-            "iam_role": "/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS",
-            "id": "arn:aws:ecs:eu-north-1:011237053542:service/cloud-design-cluster-v2/api-gateway-service",
-            "launch_type": "EC2",
-            "load_balancer": [
-              {
-                "container_name": "api-gateway",
-                "container_port": 3000,
-                "elb_name": "",
-                "target_group_arn": "arn:aws:elasticloadbalancing:eu-north-1:011237053542:targetgroup/api-gateway-tg-final/7af0eee633a81446"
-              }
-            ],
-            "name": "api-gateway-service",
-            "network_configuration": [
-              {
-                "assign_public_ip": false,
-                "security_groups": [
-                  "sg-01a1caeb6ae236ff4"
-                ],
-                "subnets": [
-                  "subnet-0d8370cbf103861b6",
-                  "subnet-0fe706183805ce761"
-                ]
-              }
-            ],
-            "ordered_placement_strategy": [],
-            "placement_constraints": [],
-            "platform_version": "",
-            "propagate_tags": "NONE",
-            "scheduling_strategy": "REPLICA",
-            "service_connect_configuration": [],
-            "service_registries": [],
-            "tags": {},
-            "tags_all": {
-              "Owner": "Team",
-              "Project": "CloudDesign"
-            },
-            "task_definition": "arn:aws:ecs:eu-north-1:011237053542:task-definition/api-gateway-task:12",
-            "timeouts": null,
-            "triggers": {},
-            "volume_configuration": [],
-            "vpc_lattice_configurations": [],
-            "wait_for_steady_state": false
-          },
-          "sensitive_attributes": [],
-          "identity_schema_version": 0,
-          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
-          "dependencies": [
-            "aws_cloudwatch_log_group.ecs_logs",
-            "aws_ecr_repository.api_gateway",
-            "aws_ecs_cluster.main",
-            "aws_ecs_task_definition.api_gateway",
-            "aws_iam_role.ecs_execution_role",
-            "aws_lb_target_group.api_gateway",
-            "aws_security_group.alb_sg",
-            "aws_security_group.ecs_sg",
-            "aws_ssm_parameter.rabbitmq_password",
-            "aws_subnet.private_1",
-            "aws_subnet.private_2",
-            "aws_vpc.main",
-            "data.aws_region.current",
-            "random_password.rabbitmq_password"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
-      "type": "aws_ecs_service",
-      "name": "billing_service",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 1,
-          "attributes": {
-            "alarms": [],
-            "availability_zone_rebalancing": "DISABLED",
-            "capacity_provider_strategy": [],
-            "cluster": "arn:aws:ecs:eu-north-1:011237053542:cluster/cloud-design-cluster-v2",
-            "deployment_circuit_breaker": [
-              {
-                "enable": false,
-                "rollback": false
-              }
-            ],
-            "deployment_controller": [
-              {
-                "type": "ECS"
-              }
-            ],
-            "deployment_maximum_percent": 100,
-            "deployment_minimum_healthy_percent": 0,
-            "desired_count": 1,
-            "enable_ecs_managed_tags": false,
-            "enable_execute_command": false,
-            "force_delete": null,
-            "force_new_deployment": true,
-            "health_check_grace_period_seconds": 0,
-            "iam_role": "/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS",
-            "id": "arn:aws:ecs:eu-north-1:011237053542:service/cloud-design-cluster-v2/billing-service",
-            "launch_type": "EC2",
-            "load_balancer": [],
-            "name": "billing-service",
-            "network_configuration": [
-              {
-                "assign_public_ip": false,
-                "security_groups": [
-                  "sg-01a1caeb6ae236ff4"
-                ],
-                "subnets": [
-                  "subnet-0d8370cbf103861b6",
-                  "subnet-0fe706183805ce761"
-                ]
-              }
-            ],
-            "ordered_placement_strategy": [],
-            "placement_constraints": [],
-            "platform_version": "",
-            "propagate_tags": "NONE",
-            "scheduling_strategy": "REPLICA",
-            "service_connect_configuration": [],
-            "service_registries": [
-              {
-                "container_name": "",
-                "container_port": 0,
-                "port": 0,
-                "registry_arn": "arn:aws:servicediscovery:eu-north-1:011237053542:service/srv-rpq2pqbmlonzz5kv"
-              }
-            ],
-            "tags": {},
-            "tags_all": {
-              "Owner": "Team",
-              "Project": "CloudDesign"
-            },
-            "task_definition": "arn:aws:ecs:eu-north-1:011237053542:task-definition/billing-stack-task:32",
-            "timeouts": null,
-            "triggers": {},
-            "volume_configuration": [],
-            "vpc_lattice_configurations": [],
-            "wait_for_steady_state": false
-          },
-          "sensitive_attributes": [],
-          "identity_schema_version": 0,
-          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
-          "dependencies": [
-            "aws_cloudwatch_log_group.ecs_logs",
-            "aws_ecr_repository.billing_app",
-            "aws_ecs_cluster.main",
-            "aws_ecs_task_definition.billing_stack",
-            "aws_efs_access_point.billing_db",
-            "aws_efs_access_point.rabbitmq",
-            "aws_efs_file_system.db_data",
-            "aws_efs_mount_target.private_1",
-            "aws_efs_mount_target.private_2",
-            "aws_iam_role.ecs_execution_role",
-            "aws_security_group.alb_sg",
-            "aws_security_group.ecs_sg",
-            "aws_security_group.efs_sg",
-            "aws_service_discovery_private_dns_namespace.local",
-            "aws_service_discovery_service.billing",
-            "aws_ssm_parameter.billing_db_password",
-            "aws_ssm_parameter.rabbitmq_password",
-            "aws_subnet.private_1",
-            "aws_subnet.private_2",
-            "aws_vpc.main",
-            "data.aws_region.current",
-            "random_password.billing_db_password",
-            "random_password.rabbitmq_password"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
-      "type": "aws_ecs_service",
-      "name": "inventory_service",
-      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
-      "instances": [
-        {
-          "schema_version": 1,
-          "attributes": {
-            "alarms": [],
-            "availability_zone_rebalancing": "DISABLED",
-            "capacity_provider_strategy": [],
-            "cluster": "arn:aws:ecs:eu-north-1:011237053542:cluster/cloud-design-cluster-v2",
-            "deployment_circuit_breaker": [
-              {
-                "enable": false,
-                "rollback": false
-              }
-            ],
-            "deployment_controller": [
-              {
-                "type": "ECS"
-              }
-            ],
-            "deployment_maximum_percent": 100,
-            "deployment_minimum_healthy_percent": 0,
-            "desired_count": 1,
-            "enable_ecs_managed_tags": false,
-            "enable_execute_command": false,
-            "force_delete": null,
-            "force_new_deployment": true,
-            "health_check_grace_period_seconds": 0,
-            "iam_role": "/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS",
-            "id": "arn:aws:ecs:eu-north-1:011237053542:service/cloud-design-cluster-v2/inventory-service",
-            "launch_type": "EC2",
-            "load_balancer": [],
-            "name": "inventory-service",
-            "network_configuration": [
-              {
-                "assign_public_ip": false,
-                "security_groups": [
-                  "sg-01a1caeb6ae236ff4"
-                ],
-                "subnets": [
-                  "subnet-0d8370cbf103861b6",
-                  "subnet-0fe706183805ce761"
-                ]
-              }
-            ],
-            "ordered_placement_strategy": [],
-            "placement_constraints": [],
-            "platform_version": "",
-            "propagate_tags": "NONE",
-            "scheduling_strategy": "REPLICA",
-            "service_connect_configuration": [],
-            "service_registries": [
-              {
-                "container_name": "",
-                "container_port": 0,
-                "port": 0,
-                "registry_arn": "arn:aws:servicediscovery:eu-north-1:011237053542:service/srv-ardp2bynxegbxajh"
-              }
-            ],
-            "tags": {},
-            "tags_all": {
-              "Owner": "Team",
-              "Project": "CloudDesign"
-            },
-            "task_definition": "arn:aws:ecs:eu-north-1:011237053542:task-definition/inventory-stack-task:28",
-            "timeouts": null,
-            "triggers": {},
-            "volume_configuration": [],
-            "vpc_lattice_configurations": [],
-            "wait_for_steady_state": false
-          },
-          "sensitive_attributes": [],
-          "identity_schema_version": 0,
-          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
-          "dependencies": [
-            "aws_cloudwatch_log_group.ecs_logs",
-            "aws_ecr_repository.inventory_app",
-            "aws_ecs_cluster.main",
-            "aws_ecs_task_definition.inventory_stack",
-            "aws_efs_access_point.inventory_db",
-            "aws_efs_file_system.db_data",
-            "aws_efs_mount_target.private_1",
-            "aws_efs_mount_target.private_2",
-            "aws_iam_role.ecs_execution_role",
-            "aws_security_group.alb_sg",
-            "aws_security_group.ecs_sg",
-            "aws_security_group.efs_sg",
-            "aws_service_discovery_private_dns_namespace.local",
-            "aws_service_discovery_service.inventory",
-            "aws_ssm_parameter.inventory_db_password",
-            "aws_subnet.private_1",
-            "aws_subnet.private_2",
-            "aws_vpc.main",
-            "data.aws_region.current",
-            "random_password.inventory_db_password"
-          ]
-        }
-      ]
-    },
-    {
-      "mode": "managed",
       "type": "aws_ecs_task_definition",
       "name": "api_gateway",
       "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
@@ -1412,9 +739,9 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/api-gateway-task:12",
+            "arn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/api-gateway-task:10",
             "arn_without_revision": "arn:aws:ecs:eu-north-1:011237053542:task-definition/api-gateway-task",
-            "container_definitions": "[{\"environment\":[{\"name\":\"INVENTORY_SERVICE_URL\",\"value\":\"http://inventory-app.local:8080\"},{\"name\":\"PORT\",\"value\":\"3000\"},{\"name\":\"RABBITMQ_HOST\",\"value\":\"billing-app.local\"},{\"name\":\"RABBITMQ_PORT\",\"value\":\"5672\"},{\"name\":\"RABBITMQ_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-api-gateway:v1\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-stream-prefix\":\"api-gateway\",\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\"}},\"memory\":1024,\"mountPoints\":[],\"name\":\"api-gateway\",\"portMappings\":[{\"containerPort\":3000,\"hostPort\":3000,\"protocol\":\"tcp\"}],\"secrets\":[{\"name\":\"RABBITMQ_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password\"}],\"systemControls\":[],\"volumesFrom\":[]}]",
+            "container_definitions": "[{\"environment\":[{\"name\":\"BILLING_SERVICE_URL\",\"value\":\"http://billing-app.local:8080\"},{\"name\":\"INVENTORY_SERVICE_URL\",\"value\":\"http://inventory-app.local:8080\"},{\"name\":\"PORT\",\"value\":\"3000\"},{\"name\":\"RABBITMQ_HOST\",\"value\":\"billing-app.local\"},{\"name\":\"RABBITMQ_PORT\",\"value\":\"5672\"},{\"name\":\"RABBITMQ_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-api-gateway:v1\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"api-gateway\"}},\"memory\":512,\"mountPoints\":[],\"name\":\"api-gateway\",\"portMappings\":[{\"containerPort\":3000,\"hostPort\":3000,\"protocol\":\"tcp\"}],\"secrets\":[{\"name\":\"RABBITMQ_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password\"}],\"systemControls\":[],\"volumesFrom\":[]}]",
             "cpu": "256",
             "enable_fault_injection": false,
             "ephemeral_storage": [],
@@ -1423,7 +750,7 @@
             "id": "api-gateway-task",
             "inference_accelerator": [],
             "ipc_mode": "",
-            "memory": "1024",
+            "memory": "512",
             "network_mode": "awsvpc",
             "pid_mode": "",
             "placement_constraints": [],
@@ -1431,10 +758,10 @@
             "requires_compatibilities": [
               "EC2"
             ],
-            "revision": 12,
+            "revision": 10,
             "runtime_platform": [],
             "skip_destroy": false,
-            "tags": null,
+            "tags": {},
             "tags_all": {
               "Owner": "Team",
               "Project": "CloudDesign"
@@ -1466,9 +793,9 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/billing-stack-task:32",
+            "arn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/billing-stack-task:20",
             "arn_without_revision": "arn:aws:ecs:eu-north-1:011237053542:task-definition/billing-stack-task",
-            "container_definitions": "[{\"dependsOn\":[{\"condition\":\"HEALTHY\",\"containerName\":\"billing-database\"},{\"condition\":\"HEALTHY\",\"containerName\":\"rabbitmq\"}],\"environment\":[{\"name\":\"BILLING_DB_HOST\",\"value\":\"localhost\"},{\"name\":\"BILLING_DB_NAME\",\"value\":\"billing\"},{\"name\":\"BILLING_DB_PORT\",\"value\":\"5432\"},{\"name\":\"BILLING_DB_USER\",\"value\":\"billinguser\"},{\"name\":\"RABBITMQ_HOST\",\"value\":\"localhost\"},{\"name\":\"RABBITMQ_PORT\",\"value\":\"5672\"},{\"name\":\"RABBITMQ_QUEUE\",\"value\":\"billing_queue\"},{\"name\":\"RABBITMQ_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-billing-app:v1\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"billing-app\"}},\"memory\":640,\"mountPoints\":[],\"name\":\"billing-app\",\"portMappings\":[],\"secrets\":[{\"name\":\"BILLING_DB_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/billing-db/password\"},{\"name\":\"RABBITMQ_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"PGDATA\",\"value\":\"/data/billing/pgdata\"},{\"name\":\"POSTGRES_DB\",\"value\":\"billing\"},{\"name\":\"POSTGRES_USER\",\"value\":\"billinguser\"}],\"essential\":true,\"healthCheck\":{\"command\":[\"CMD-SHELL\",\"pg_isready -U billinguser -d billing\"],\"interval\":10,\"retries\":5,\"startPeriod\":60,\"timeout\":5},\"image\":\"postgres:13-alpine\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"billing-db\"}},\"memory\":512,\"mountPoints\":[{\"containerPath\":\"/data/billing\",\"readOnly\":false,\"sourceVolume\":\"billing-db-data\"}],\"name\":\"billing-database\",\"portMappings\":[],\"secrets\":[{\"name\":\"POSTGRES_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/billing-db/password\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"RABBITMQ_DEFAULT_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"healthCheck\":{\"command\":[\"CMD-SHELL\",\"rabbitmq-diagnostics ping\"],\"interval\":10,\"retries\":5,\"startPeriod\":60,\"timeout\":5},\"image\":\"rabbitmq:3-management-alpine\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"rabbitmq\"}},\"memory\":768,\"mountPoints\":[{\"containerPath\":\"/var/lib/rabbitmq\",\"readOnly\":false,\"sourceVolume\":\"rabbitmq-data\"}],\"name\":\"rabbitmq\",\"portMappings\":[{\"containerPort\":5672,\"hostPort\":5672,\"protocol\":\"tcp\"},{\"containerPort\":15672,\"hostPort\":15672,\"protocol\":\"tcp\"}],\"secrets\":[{\"name\":\"RABBITMQ_DEFAULT_PASS\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password\"}],\"systemControls\":[],\"volumesFrom\":[]}]",
+            "container_definitions": "[{\"environment\":[{\"name\":\"BILLING_DB_HOST\",\"value\":\"localhost\"},{\"name\":\"BILLING_DB_NAME\",\"value\":\"billing\"},{\"name\":\"BILLING_DB_PORT\",\"value\":\"5432\"},{\"name\":\"BILLING_DB_USER\",\"value\":\"billinguser\"},{\"name\":\"BILLING_PORT\",\"value\":\"8080\"},{\"name\":\"RABBITMQ_HOST\",\"value\":\"localhost\"},{\"name\":\"RABBITMQ_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-billing-app:v1\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"billing-app\",\"awslogs-group\":\"/ecs/cloud-design\"}},\"memory\":896,\"mountPoints\":[],\"name\":\"billing-app\",\"portMappings\":[{\"containerPort\":8080,\"hostPort\":8080,\"protocol\":\"tcp\"}],\"secrets\":[{\"name\":\"BILLING_DB_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/billing-db/password\"},{\"name\":\"RABBITMQ_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"PGDATA\",\"value\":\"/data/billing/pgdata\"},{\"name\":\"POSTGRES_DB\",\"value\":\"billing\"},{\"name\":\"POSTGRES_USER\",\"value\":\"billinguser\"}],\"essential\":true,\"image\":\"postgres:13-alpine\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"billing-db\"}},\"memory\":640,\"mountPoints\":[{\"containerPath\":\"/data/billing\",\"readOnly\":false,\"sourceVolume\":\"billing-db-data\"}],\"name\":\"billing-database\",\"portMappings\":[],\"secrets\":[{\"name\":\"POSTGRES_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/billing-db/password\"}],\"systemControls\":[],\"user\":\"70:70\",\"volumesFrom\":[]},{\"environment\":[{\"name\":\"RABBITMQ_DEFAULT_USER\",\"value\":\"rabbitmq_user\"},{\"name\":\"RABBITMQ_MNESIA_DIR\",\"value\":\"/data/rabbitmq/mnesia\"},{\"name\":\"RABBITMQ_VM_MEMORY_HIGH_WATERMARK\",\"value\":\"0.8\"}],\"essential\":true,\"image\":\"rabbitmq:3-management-alpine\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"rabbitmq\"}},\"memory\":512,\"mountPoints\":[{\"containerPath\":\"/data/rabbitmq\",\"readOnly\":false,\"sourceVolume\":\"rabbitmq-data\"}],\"name\":\"rabbitmq\",\"portMappings\":[],\"secrets\":[{\"name\":\"RABBITMQ_DEFAULT_PASS\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password\"}],\"systemControls\":[],\"user\":\"100:101\",\"volumesFrom\":[]}]",
             "cpu": "512",
             "enable_fault_injection": false,
             "ephemeral_storage": [],
@@ -1477,7 +804,7 @@
             "id": "billing-stack-task",
             "inference_accelerator": [],
             "ipc_mode": "",
-            "memory": "1280",
+            "memory": "2048",
             "network_mode": "awsvpc",
             "pid_mode": "",
             "placement_constraints": [],
@@ -1485,7 +812,7 @@
             "requires_compatibilities": [
               "EC2"
             ],
-            "revision": 32,
+            "revision": 20,
             "runtime_platform": [],
             "skip_destroy": false,
             "tags": {},
@@ -1503,7 +830,7 @@
                   {
                     "authorization_config": [
                       {
-                        "access_point_id": "fsap-022c779ceb7efadcf",
+                        "access_point_id": "fsap-0acd36f2299736b7c",
                         "iam": "DISABLED"
                       }
                     ],
@@ -1524,7 +851,7 @@
                   {
                     "authorization_config": [
                       {
-                        "access_point_id": "fsap-0e31d6edf426c31e4",
+                        "access_point_id": "fsap-0b5569f9bb3de57bb",
                         "iam": "DISABLED"
                       }
                     ],
@@ -1568,9 +895,9 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/inventory-stack-task:28",
+            "arn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/inventory-stack-task:18",
             "arn_without_revision": "arn:aws:ecs:eu-north-1:011237053542:task-definition/inventory-stack-task",
-            "container_definitions": "[{\"dependsOn\":[{\"condition\":\"HEALTHY\",\"containerName\":\"inventory-database\"}],\"environment\":[{\"name\":\"INVENTORY_DB_HOST\",\"value\":\"localhost\"},{\"name\":\"INVENTORY_DB_NAME\",\"value\":\"inventory\"},{\"name\":\"INVENTORY_DB_PORT\",\"value\":\"5432\"},{\"name\":\"INVENTORY_DB_USER\",\"value\":\"inventoryuser\"},{\"name\":\"INVENTORY_PORT\",\"value\":\"8080\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-inventory-app:v1\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-stream-prefix\":\"inventory-app\",\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\"}},\"memory\":512,\"mountPoints\":[],\"name\":\"inventory-app\",\"portMappings\":[{\"containerPort\":8080,\"hostPort\":8080,\"protocol\":\"tcp\"}],\"secrets\":[{\"name\":\"INVENTORY_DB_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/inventory-db/password\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"PGDATA\",\"value\":\"/data/inventory/pgdata\"},{\"name\":\"POSTGRES_DB\",\"value\":\"inventory\"},{\"name\":\"POSTGRES_USER\",\"value\":\"inventoryuser\"}],\"essential\":true,\"healthCheck\":{\"command\":[\"CMD-SHELL\",\"pg_isready -U inventoryuser -h localhost\"],\"interval\":10,\"retries\":10,\"startPeriod\":120,\"timeout\":5},\"image\":\"postgres:13-alpine\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"inventory-db\"}},\"memory\":512,\"mountPoints\":[{\"containerPath\":\"/data/inventory\",\"readOnly\":false,\"sourceVolume\":\"inventory-db-data\"}],\"name\":\"inventory-database\",\"portMappings\":[],\"secrets\":[{\"name\":\"POSTGRES_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/inventory-db/password\"}],\"systemControls\":[],\"volumesFrom\":[]}]",
+            "container_definitions": "[{\"environment\":[{\"name\":\"INVENTORY_DB_HOST\",\"value\":\"localhost\"},{\"name\":\"INVENTORY_DB_NAME\",\"value\":\"inventory\"},{\"name\":\"INVENTORY_DB_PORT\",\"value\":\"5432\"},{\"name\":\"INVENTORY_DB_USER\",\"value\":\"inventoryuser\"},{\"name\":\"INVENTORY_PORT\",\"value\":\"8080\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-inventory-app:v1\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"inventory-app\"}},\"memory\":512,\"mountPoints\":[],\"name\":\"inventory-app\",\"portMappings\":[{\"containerPort\":8080,\"hostPort\":8080,\"protocol\":\"tcp\"}],\"secrets\":[{\"name\":\"INVENTORY_DB_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/inventory-db/password\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"PGDATA\",\"value\":\"/data/inventory/pgdata\"},{\"name\":\"POSTGRES_DB\",\"value\":\"inventory\"},{\"name\":\"POSTGRES_USER\",\"value\":\"inventoryuser\"}],\"essential\":true,\"image\":\"postgres:13-alpine\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"inventory-db\"}},\"memory\":512,\"mountPoints\":[{\"containerPath\":\"/data/inventory\",\"readOnly\":false,\"sourceVolume\":\"inventory-db-data\"}],\"name\":\"inventory-database\",\"portMappings\":[],\"secrets\":[{\"name\":\"POSTGRES_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/inventory-db/password\"}],\"systemControls\":[],\"user\":\"70:70\",\"volumesFrom\":[]}]",
             "cpu": "512",
             "enable_fault_injection": false,
             "ephemeral_storage": [],
@@ -1587,7 +914,7 @@
             "requires_compatibilities": [
               "EC2"
             ],
-            "revision": 28,
+            "revision": 18,
             "runtime_platform": [],
             "skip_destroy": false,
             "tags": {},
@@ -1605,7 +932,7 @@
                   {
                     "authorization_config": [
                       {
-                        "access_point_id": "fsap-0718f5b27e0a8c452",
+                        "access_point_id": "fsap-0b0eba4735cb6a210",
                         "iam": "DISABLED"
                       }
                     ],
@@ -1646,10 +973,10 @@
         {
           "schema_version": 0,
           "attributes": {
-            "arn": "arn:aws:elasticfilesystem:eu-north-1:011237053542:access-point/fsap-0e31d6edf426c31e4",
+            "arn": "arn:aws:elasticfilesystem:eu-north-1:011237053542:access-point/fsap-0b5569f9bb3de57bb",
             "file_system_arn": "arn:aws:elasticfilesystem:eu-north-1:011237053542:file-system/fs-01f1080a5619822a4",
             "file_system_id": "fs-01f1080a5619822a4",
-            "id": "fsap-0e31d6edf426c31e4",
+            "id": "fsap-0b5569f9bb3de57bb",
             "owner_id": "011237053542",
             "posix_user": [
               {
@@ -1667,7 +994,7 @@
                     "permissions": "0700"
                   }
                 ],
-                "path": "/billing-db-data-v5"
+                "path": "/billing-db-data-v3"
               }
             ],
             "tags": {
@@ -1697,10 +1024,10 @@
         {
           "schema_version": 0,
           "attributes": {
-            "arn": "arn:aws:elasticfilesystem:eu-north-1:011237053542:access-point/fsap-0718f5b27e0a8c452",
+            "arn": "arn:aws:elasticfilesystem:eu-north-1:011237053542:access-point/fsap-0b0eba4735cb6a210",
             "file_system_arn": "arn:aws:elasticfilesystem:eu-north-1:011237053542:file-system/fs-01f1080a5619822a4",
             "file_system_id": "fs-01f1080a5619822a4",
-            "id": "fsap-0718f5b27e0a8c452",
+            "id": "fsap-0b0eba4735cb6a210",
             "owner_id": "011237053542",
             "posix_user": [
               {
@@ -1718,7 +1045,7 @@
                     "permissions": "0700"
                   }
                 ],
-                "path": "/inventory-db-data-v5"
+                "path": "/inventory-db-data-v3"
               }
             ],
             "tags": {
@@ -1748,28 +1075,28 @@
         {
           "schema_version": 0,
           "attributes": {
-            "arn": "arn:aws:elasticfilesystem:eu-north-1:011237053542:access-point/fsap-022c779ceb7efadcf",
+            "arn": "arn:aws:elasticfilesystem:eu-north-1:011237053542:access-point/fsap-0acd36f2299736b7c",
             "file_system_arn": "arn:aws:elasticfilesystem:eu-north-1:011237053542:file-system/fs-01f1080a5619822a4",
             "file_system_id": "fs-01f1080a5619822a4",
-            "id": "fsap-022c779ceb7efadcf",
+            "id": "fsap-0acd36f2299736b7c",
             "owner_id": "011237053542",
             "posix_user": [
               {
-                "gid": 999,
+                "gid": 101,
                 "secondary_gids": [],
-                "uid": 999
+                "uid": 100
               }
             ],
             "root_directory": [
               {
                 "creation_info": [
                   {
-                    "owner_gid": 999,
-                    "owner_uid": 999,
+                    "owner_gid": 101,
+                    "owner_uid": 100,
                     "permissions": "0700"
                   }
                 ],
-                "path": "/rabbitmq-data-v5"
+                "path": "/rabbitmq-data-v3"
               }
             ],
             "tags": {
@@ -1820,9 +1147,9 @@
             "provisioned_throughput_in_mibps": 0,
             "size_in_bytes": [
               {
-                "value": 406081536,
+                "value": 218499072,
                 "value_in_ia": 0,
-                "value_in_standard": 406081536
+                "value_in_standard": 218499072
               }
             ],
             "tags": {
@@ -2262,7 +1589,7 @@
             "instance_type": "t3.small",
             "kernel_id": "",
             "key_name": "",
-            "latest_version": 8,
+            "latest_version": 7,
             "license_specification": [],
             "maintenance_options": [],
             "metadata_options": [],
@@ -2281,7 +1608,7 @@
               "Project": "CloudDesign"
             },
             "update_default_version": null,
-            "user_data": "IyEvYmluL2Jhc2gKZWNobyBFQ1NfQ0xVU1RFUj1jbG91ZC1kZXNpZ24tY2x1c3Rlci12MiA+PiAvZXRjL2Vjcy9lY3MuY29uZmlnCnl1bSBpbnN0YWxsIC15IGFtYXpvbi1lZnMtdXRpbHMK",
+            "user_data": "IyEvYmluL2Jhc2gKZWNobyBFQ1NfQ0xVU1RFUj1jbG91ZC1kZXNpZ24tY2x1c3RlciA+PiAvZXRjL2Vjcy9lY3MuY29uZmlnCnl1bSBpbnN0YWxsIC15IGFtYXpvbi1lZnMtdXRpbHMK",
             "vpc_security_group_ids": [
               "sg-01a1caeb6ae236ff4"
             ]

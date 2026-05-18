@@ -45,12 +45,12 @@ def main():
     print("💳 BILLING API - Starting RabbitMQ Consumer")
     print("=" * 60)
     
-    # Set defaults for Kubernetes environment
+        # Set defaults for Kubernetes environment
     os.environ.setdefault('BILLING_DB_NAME', 'billing')
     os.environ.setdefault('BILLING_DB_USER', 'billinguser')
-    os.environ.setdefault('BILLING_DB_HOST', 'billing-database')
+    os.environ.setdefault('BILLING_DB_HOST', 'localhost')
     os.environ.setdefault('BILLING_DB_PORT', '5432')
-    os.environ.setdefault('RABBITMQ_HOST', 'rabbitmq')
+    os.environ.setdefault('RABBITMQ_HOST', 'localhost')
     os.environ.setdefault('RABBITMQ_PORT', '5672')
     os.environ.setdefault('RABBITMQ_QUEUE', 'billing_queue')
     

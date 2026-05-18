@@ -80,10 +80,10 @@
               "raw": "{\n  \"title\": \"Arrival\",\n  \"description\": \"Sci-fi drama about first contact.\"\n}"
             },
             "url": {
-              "raw": "http://192.168.56.10:30000/api/movies",
-              "host": ["192.168.56.10"],
+              "raw": "http://cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com/api/movies",
+              "host": ["cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com"],
               "protocol": "http",
-              "port": "30000",
+              "port": "",
               "path": ["api", "movies"]
             },
             "description": "Create a new movie in the inventory.\n\nRequired fields:\n- title\n- description"
@@ -136,10 +136,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://192.168.56.10:30000/api/movies",
-              "host": ["192.168.56.10"],
+              "raw": "http://cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com/api/movies",
+              "host": ["cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com"],
               "protocol": "http",
-              "port": "30000",
+              "port": "",
               "path": ["api", "movies"]
             },
             "description": "Retrieve all movies from the inventory."
@@ -170,10 +170,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://192.168.56.10:30000/api/movies?title=atri",
-              "host": ["192.168.56.10"],
+              "raw": "http://cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com/api/movies?title=atri",
+              "host": ["cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com"],
               "protocol": "http",
-              "port": "30000",
+              "port": "",
               "path": ["api", "movies"],
               "query": [
                 {
@@ -229,10 +229,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://192.168.56.10:30000/api/movies/{{movieId}}",
-              "host": ["192.168.56.10"],
+              "raw": "http://cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com/api/movies/{{movieId}}",
+              "host": ["cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com"],
               "protocol": "http",
-              "port": "30000",
+              "port": "",
               "path": ["api", "movies", "{{movieId}}"]
             },
             "description": "Retrieve a specific movie by its ID."
@@ -283,10 +283,10 @@
               "raw": "{\n  \"rating\": 9.0,\n  \"available_copies\": 3\n}"
             },
             "url": {
-              "raw": "http://192.168.56.10:30000/api/movies/{{movieId}}",
-              "host": ["192.168.56.10"],
+              "raw": "http://cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com/api/movies/{{movieId}}",
+              "host": ["cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com"],
               "protocol": "http",
-              "port": "30000",
+              "port": "",
               "path": ["api", "movies", "{{movieId}}"]
             },
             "description": "Update a movie's details (partial update supported)."
@@ -322,10 +322,10 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://192.168.56.10:30000/api/movies/{{movieId}}",
-              "host": ["192.168.56.10"],
+              "raw": "http://cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com/api/movies/{{movieId}}",
+              "host": ["cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com"],
               "protocol": "http",
-              "port": "30000",
+              "port": "",
               "path": ["api", "movies", "{{movieId}}"]
             },
             "description": "Delete a specific movie by ID."
@@ -367,10 +367,10 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://192.168.56.10:30000/api/movies",
-              "host": ["192.168.56.10"],
+              "raw": "http://cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com/api/movies",
+              "host": ["cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com"],
               "protocol": "http",
-              "port": "30000",
+              "port": "",
               "path": ["api", "movies"]
             },
             "description": "⚠️ **WARNING**: Delete ALL movies from the database. This operation cannot be undone!"
@@ -435,10 +435,10 @@
               "raw": "{\n  \"user_id\": \"20\",\n  \"number_of_items\": \"5\",\n  \"total_amount\": \"49.99\"\n}"
             },
             "url": {
-              "raw": "http://192.168.56.10:30000/api/billing",
-              "host": ["192.168.56.10"],
+              "raw": "http://cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com/api/billing",
+              "host": ["cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com"],
               "protocol": "http",
-              "port": "30000",
+              "port": "",
               "path": ["api", "billing"]
             },
             "description": "Create an order and publish it to RabbitMQ queue.\n\nReturns 200 OK immediately (async processing).\n\nDemonstrates message queue pattern with eventual consistency and durability."
@@ -481,10 +481,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://192.168.56.10:30000/health",
-              "host": ["192.168.56.10"],
+              "raw": "http://cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com/health",
+              "host": ["cloud-design-alb-433299173.eu-north-1.elb.amazonaws.com"],
               "protocol": "http",
-              "port": "30000",
+              "port": "",
               "path": ["health"]
             },
             "description": "Check health status of the API Gateway."
