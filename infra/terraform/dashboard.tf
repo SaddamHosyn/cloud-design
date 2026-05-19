@@ -44,13 +44,31 @@ resource "aws_cloudwatch_dashboard" "main" {
         properties = {
           metrics = [
             ["AWS/ECS", "CPUUtilization", "ServiceName", "api-gateway-service", "ClusterName", aws_ecs_cluster.main.name],
-            ["AWS/ECS", "CPUUtilization", "ServiceName", "billing-service", "ClusterName", aws_ecs_cluster.main.name],
-            ["AWS/ECS", "CPUUtilization", "ServiceName", "inventory-service", "ClusterName", aws_ecs_cluster.main.name]
+            [".", "CPUUtilization", "ServiceName", "billing-service", "ClusterName", aws_ecs_cluster.main.name],
+            [".", "CPUUtilization", "ServiceName", "inventory-service", "ClusterName", aws_ecs_cluster.main.name]
           ]
           period = 300
           stat   = "Average"
           region = var.aws_region
           title  = "ECS Services CPU Utilization"
+        }
+      },
+      {
+        type   = "metric"
+        x      = 12
+        y      = 6
+        width  = 12
+        height = 6
+        properties = {
+          metrics = [
+            ["AWS/ECS", "MemoryUtilization", "ServiceName", "api-gateway-service", "ClusterName", aws_ecs_cluster.main.name],
+            [".", "MemoryUtilization", "ServiceName", "billing-service", "ClusterName", aws_ecs_cluster.main.name],
+            [".", "MemoryUtilization", "ServiceName", "inventory-service", "ClusterName", aws_ecs_cluster.main.name]
+          ]
+          period = 300
+          stat   = "Average"
+          region = var.aws_region
+          title  = "ECS Services Memory Utilization"
         }
       }
     ]

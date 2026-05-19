@@ -23,24 +23,28 @@ resource "aws_cognito_user_pool_client" "main" {
   name         = "cloud-design-app-client"
   user_pool_id = aws_cognito_user_pool.main.id
 
-  generate_secret = true
+  generate_secret = false
 
-  allowed_oauth_flows_user_pool_client = true
-  allowed_oauth_flows                  = ["code", "implicit"]
-  allowed_oauth_scopes                 = ["email", "openid", "profile"]
+  explicit_auth_flows = [
+    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH",
+    "ALLOW_USER_SRP_AUTH"
+  ]
 
-  callback_urls = ["https://api.cloud-design.local/oauth2/idpresponse"]
-  logout_urls   = ["https://api.cloud-design.local/"]
+  prevent_user_existence_errors = "ENABLED"
 
-  supported_identity_providers = ["COGNITO"]
+  allowed_oauth_flows_user_pool_client = false
 }
 
-resource "random_integer" "cognito_domain" {
-  min = 100000
-  max = 999999
-}
-
-resource "aws_cognito_user_pool_domain" "main" {
-  domain       = "cloud-design-auth-domain-${random_integer.cognito_domain.result}"
+resource "aws_cognito_user" "test_user" {
   user_pool_id = aws_cognito_user_pool.main.id
+  username     = "audit-user@example.com"
+
+  attributes = {
+    email          = "audit-user@example.com"
+    email_verified = "true"
+  }
+
+  temporary_password = "TempPass123!"
+  message_action     = "SUPPRESS"
 }

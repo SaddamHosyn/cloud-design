@@ -2,7 +2,7 @@
   "containerDefinitions": [
     {
       "name": "api-gateway",
-      "image": "011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-api-gateway:fix-healthcheck-001",
+      "image": "011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-api-gateway:jwt-auth-amd64",
       "cpu": 0,
       "memory": 1024,
       "portMappings": [
@@ -14,31 +14,43 @@
       ],
       "essential": true,
       "environment": [
-        {
-          "name": "GATEWAY_PORT",
-          "value": "3000"
-        },
-        {
-          "name": "BILLING_SERVICE_URL",
-          "value": "http://billing-app.local:8080"
-        },
-        {
-          "name": "INVENTORY_SERVICE_URL",
-          "value": "http://inventory-app.local:8080"
-        },
-        {
-          "name": "RABBITMQ_HOST",
-          "value": "billing-app.local"
-        },
-        {
-          "name": "RABBITMQ_PORT",
-          "value": "5672"
-        },
-        {
-          "name": "RABBITMQ_USER",
-          "value": "rabbitmq_user"
-        }
-      ],
+  {
+    "name": "GATEWAY_PORT",
+    "value": "3000"
+  },
+  {
+    "name": "BILLING_SERVICE_URL",
+    "value": "http://billing-app.local:8080"
+  },
+  {
+    "name": "INVENTORY_SERVICE_URL",
+    "value": "http://inventory-app.local:8080"
+  },
+  {
+    "name": "RABBITMQ_HOST",
+    "value": "billing-app.local"
+  },
+  {
+    "name": "RABBITMQ_PORT",
+    "value": "5672"
+  },
+  {
+    "name": "RABBITMQ_USER",
+    "value": "rabbitmq_user"
+  },
+  {
+    "name": "COGNITO_REGION",
+    "value": "eu-north-1"
+  },
+  {
+    "name": "COGNITO_USER_POOL_ID",
+    "value": "eu-north-1_qFWpBIUIE"
+  },
+  {
+    "name": "COGNITO_APP_CLIENT_ID",
+    "value": "1rcmn441p50aqt82ogq1diviaj"
+  }
+],
       "mountPoints": [],
       "volumesFrom": [],
       "secrets": [

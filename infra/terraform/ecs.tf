@@ -174,10 +174,10 @@ resource "aws_ecs_task_definition" "api_gateway" {
 
   container_definitions = jsonencode([
     {
-      name      = "api-gateway"
-      image     = "${aws_ecr_repository.api_gateway.repository_url}:v1"
-      memory    = 1024
-      essential = true
+      name         = "api-gateway"
+      image        = "${aws_ecr_repository.api_gateway.repository_url}:v1"
+      memory       = 1024
+      essential    = true
       portMappings = [{ containerPort = 3000, hostPort = 3000, protocol = "tcp" }]
       healthCheck = {
         command     = ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
@@ -187,12 +187,12 @@ resource "aws_ecs_task_definition" "api_gateway" {
         startPeriod = 180
       }
       environment = [
-        { name = "BILLING_SERVICE_URL",   value = "http://billing-app.local:8080" },
+        { name = "BILLING_SERVICE_URL", value = "http://billing-app.local:8080" },
         { name = "INVENTORY_SERVICE_URL", value = "http://inventory-app.local:8080" },
-        { name = "GATEWAY_PORT",          value = "3000" },
-        { name = "RABBITMQ_HOST",         value = "billing-app.local" },
-        { name = "RABBITMQ_PORT",         value = "5672" },
-        { name = "RABBITMQ_USER",         value = "rabbitmq_user" }
+        { name = "GATEWAY_PORT", value = "3000" },
+        { name = "RABBITMQ_HOST", value = "billing-app.local" },
+        { name = "RABBITMQ_PORT", value = "5672" },
+        { name = "RABBITMQ_USER", value = "rabbitmq_user" }
       ]
       secrets = [{ name = "RABBITMQ_PASSWORD", valueFrom = aws_ssm_parameter.rabbitmq_password.arn }]
       logConfiguration = {
@@ -232,45 +232,45 @@ resource "aws_ecs_task_definition" "billing_stack" {
 
   container_definitions = jsonencode([
     {
-  name      = "rabbitmq"
-  image     = "rabbitmq:3-management-alpine"
-  memory    = 384
-  essential = true
-  environment = [
-    { name = "RABBITMQ_DEFAULT_USER", value = "rabbitmq_user" }
-  ]
-  secrets = [
-    { name = "RABBITMQ_DEFAULT_PASS", valueFrom = aws_ssm_parameter.rabbitmq_password.arn }
-  ]
-  portMappings = [
-    { containerPort = 5672, hostPort = 5672, protocol = "tcp" },
-    { containerPort = 15672, hostPort = 15672, protocol = "tcp" }
-  ]
-  healthCheck = {
-    command     = ["CMD", "rabbitmq-diagnostics", "ping"]
-    interval    = 15
-    timeout     = 10
-    retries     = 5
-    startPeriod = 60
-  }
-  logConfiguration = {
-    logDriver = "awslogs"
-    options = {
-      "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
-      "awslogs-region"        = data.aws_region.current.name
-      "awslogs-stream-prefix" = "rabbitmq"
-    }
-  }
-},
-    {
-      name              = "billing-database"
-      image             = "postgres:13-alpine"
-      memory            = 256
-      essential         = true
+      name      = "rabbitmq"
+      image     = "rabbitmq:3-management-alpine"
+      memory    = 384
+      essential = true
       environment = [
-        { name = "POSTGRES_DB",   value = "billing" },
+        { name = "RABBITMQ_DEFAULT_USER", value = "rabbitmq_user" }
+      ]
+      secrets = [
+        { name = "RABBITMQ_DEFAULT_PASS", valueFrom = aws_ssm_parameter.rabbitmq_password.arn }
+      ]
+      portMappings = [
+        { containerPort = 5672, hostPort = 5672, protocol = "tcp" },
+        { containerPort = 15672, hostPort = 15672, protocol = "tcp" }
+      ]
+      healthCheck = {
+        command     = ["CMD", "rabbitmq-diagnostics", "ping"]
+        interval    = 15
+        timeout     = 10
+        retries     = 5
+        startPeriod = 60
+      }
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-stream-prefix" = "rabbitmq"
+        }
+      }
+    },
+    {
+      name      = "billing-database"
+      image     = "postgres:13-alpine"
+      memory    = 256
+      essential = true
+      environment = [
+        { name = "POSTGRES_DB", value = "billing" },
         { name = "POSTGRES_USER", value = "billinguser" },
-        { name = "PGDATA",        value = "/data/billing/pgdata" }
+        { name = "PGDATA", value = "/data/billing/pgdata" }
       ]
       secrets     = [{ name = "POSTGRES_PASSWORD", valueFrom = aws_ssm_parameter.billing_db_password.arn }]
       mountPoints = [{ sourceVolume = "billing-db-data", containerPath = "/data/billing", readOnly = false }]
@@ -291,27 +291,27 @@ resource "aws_ecs_task_definition" "billing_stack" {
       }
     },
     {
-      name              = "billing-app"
-      image             = "${aws_ecr_repository.billing_app.repository_url}:v1"
-      memory            = 256
-      essential         = true
+      name      = "billing-app"
+      image     = "${aws_ecr_repository.billing_app.repository_url}:v1"
+      memory    = 256
+      essential = true
       dependsOn = [
         { containerName = "billing-database", condition = "HEALTHY" },
         { containerName = "rabbitmq", condition = "HEALTHY" }
       ]
-        environment = [
+      environment = [
         { name = "BILLING_DB_HOST", value = "localhost" },
         { name = "BILLING_DB_PORT", value = "5432" },
         { name = "BILLING_DB_NAME", value = "billing" },
         { name = "BILLING_DB_USER", value = "billinguser" },
-        { name = "RABBITMQ_HOST",   value = "localhost" },
-        { name = "RABBITMQ_PORT",   value = "5672" },
-        { name = "RABBITMQ_USER",   value = "rabbitmq_user" },
-        { name = "RABBITMQ_QUEUE",  value = "billing_queue" }
+        { name = "RABBITMQ_HOST", value = "localhost" },
+        { name = "RABBITMQ_PORT", value = "5672" },
+        { name = "RABBITMQ_USER", value = "rabbitmq_user" },
+        { name = "RABBITMQ_QUEUE", value = "billing_queue" }
       ]
       secrets = [
         { name = "BILLING_DB_PASSWORD", valueFrom = aws_ssm_parameter.billing_db_password.arn },
-        { name = "RABBITMQ_PASSWORD",   valueFrom = aws_ssm_parameter.rabbitmq_password.arn }
+        { name = "RABBITMQ_PASSWORD", valueFrom = aws_ssm_parameter.rabbitmq_password.arn }
       ]
       logConfiguration = {
         logDriver = "awslogs"
@@ -350,14 +350,14 @@ resource "aws_ecs_task_definition" "inventory_stack" {
 
   container_definitions = jsonencode([
     {
-      name              = "inventory-database"
-      image             = "postgres:13-alpine"
-      memory            = 512
-      essential         = true
+      name      = "inventory-database"
+      image     = "postgres:13-alpine"
+      memory    = 512
+      essential = true
       environment = [
-        { name = "POSTGRES_DB",   value = "inventory" },
+        { name = "POSTGRES_DB", value = "inventory" },
         { name = "POSTGRES_USER", value = "inventoryuser" },
-        { name = "PGDATA",        value = "/data/inventory/pgdata" }
+        { name = "PGDATA", value = "/data/inventory/pgdata" }
       ]
       secrets     = [{ name = "POSTGRES_PASSWORD", valueFrom = aws_ssm_parameter.inventory_db_password.arn }]
       mountPoints = [{ sourceVolume = "inventory-db-data", containerPath = "/data/inventory", readOnly = false }]
@@ -378,32 +378,32 @@ resource "aws_ecs_task_definition" "inventory_stack" {
       }
     },
     {
-  name              = "inventory-app"
-  image             = "${aws_ecr_repository.inventory_app.repository_url}:v1"
-  memory            = 512
-  essential         = true
-  dependsOn = [
-    { containerName = "inventory-database", condition = "HEALTHY" }
-  ]
-  portMappings      = [{ containerPort = 8080, hostPort = 8080, protocol = "tcp" }]
-  environment = [
-    { name = "INVENTORY_DB_HOST", value = "localhost" },
-    { name = "INVENTORY_DB_PORT", value = "5432" },
-    { name = "INVENTORY_DB_NAME", value = "inventory" },
-    { name = "INVENTORY_DB_USER", value = "inventoryuser" },
-    { name = "INVENTORY_PORT",    value = "8080" }
-  ]
-  secrets = [{ name = "INVENTORY_DB_PASSWORD", valueFrom = aws_ssm_parameter.inventory_db_password.arn }]
-  logConfiguration = {
-    logDriver = "awslogs"
-    options = {
-      "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
-      "awslogs-region"        = data.aws_region.current.name
-      "awslogs-stream-prefix" = "inventory-app"
+      name      = "inventory-app"
+      image     = "${aws_ecr_repository.inventory_app.repository_url}:v1"
+      memory    = 512
+      essential = true
+      dependsOn = [
+        { containerName = "inventory-database", condition = "HEALTHY" }
+      ]
+      portMappings = [{ containerPort = 8080, hostPort = 8080, protocol = "tcp" }]
+      environment = [
+        { name = "INVENTORY_DB_HOST", value = "localhost" },
+        { name = "INVENTORY_DB_PORT", value = "5432" },
+        { name = "INVENTORY_DB_NAME", value = "inventory" },
+        { name = "INVENTORY_DB_USER", value = "inventoryuser" },
+        { name = "INVENTORY_PORT", value = "8080" }
+      ]
+      secrets = [{ name = "INVENTORY_DB_PASSWORD", valueFrom = aws_ssm_parameter.inventory_db_password.arn }]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-stream-prefix" = "inventory-app"
+        }
+      }
     }
-  }
-}
-])
+  ])
 }
 
 # ==========================================
@@ -429,7 +429,7 @@ resource "aws_ecs_service" "api_gateway_service" {
     container_name   = "api-gateway"
     container_port   = 3000
   }
-   # ADDED: ensures ALB and both listeners are fully created before ECS service
+  # ADDED: ensures ALB and both listeners are fully created before ECS service
   depends_on = [
     aws_lb_listener.http,
     aws_lb_listener.https,

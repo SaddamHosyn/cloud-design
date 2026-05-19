@@ -13,7 +13,7 @@ resource "aws_lb_target_group" "api_gateway" {
   port        = 3000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
-  target_type = "ip"                   # Reverted to IP for awsvpc
+  target_type = "ip" # Reverted to IP for awsvpc
 
   health_check {
     path = "/health"
@@ -63,7 +63,8 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# Listener for Port 443 (HTTPS) with Cognito Authentication
+# Listener for Port 443 (HTTPS)
+# Listener for Port 443 (HTTPS)
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.main.arn
   port              = "443"
@@ -72,19 +73,7 @@ resource "aws_lb_listener" "https" {
   certificate_arn   = aws_acm_certificate.alb_cert.arn
 
   default_action {
-    type  = "authenticate-cognito"
-    order = 1
-
-    authenticate_cognito {
-      user_pool_arn       = aws_cognito_user_pool.main.arn
-      user_pool_client_id = aws_cognito_user_pool_client.main.id
-      user_pool_domain    = aws_cognito_user_pool_domain.main.domain
-    }
-  }
-
-  default_action {
     type             = "forward"
-    order            = 2
     target_group_arn = aws_lb_target_group.api_gateway.arn
   }
 }
