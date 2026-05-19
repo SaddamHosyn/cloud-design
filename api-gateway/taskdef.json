@@ -1,0 +1,123 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/api-gateway-task:15",
+    "containerDefinitions": [
+        {
+            "name": "api-gateway",
+            "image": "011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-api-gateway:v1",
+            "cpu": 0,
+            "memory": 1024,
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "GATEWAY_PORT",
+                    "value": "3000"
+                },
+                {
+                    "name": "BILLING_SERVICE_URL",
+                    "value": "http://billing-app.local:8080"
+                },
+                {
+                    "name": "INVENTORY_SERVICE_URL",
+                    "value": "http://inventory-app.local:8080"
+                },
+                {
+                    "name": "RABBITMQ_HOST",
+                    "value": "billing-app.local"
+                },
+                {
+                    "name": "RABBITMQ_PORT",
+                    "value": "5672"
+                },
+                {
+                    "name": "RABBITMQ_USER",
+                    "value": "rabbitmq_user"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "RABBITMQ_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/cloud-design",
+                    "awslogs-region": "eu-north-1",
+                    "awslogs-stream-prefix": "api-gateway"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "curl -f http://localhost:3000/health || exit 1"
+                ],
+                "interval": 15,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 180
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "api-gateway-task",
+    "executionRoleArn": "arn:aws:iam::011237053542:role/ecs_execution_role",
+    "networkMode": "awsvpc",
+    "revision": 15,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "ecs.capability.container-health-check"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "ecs.capability.secrets.ssm.environment-variables"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE",
+        "MANAGED_INSTANCES"
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "cpu": "256",
+    "memory": "1024",
+    "registeredAt": "2026-05-19T10:27:13.166000+03:00",
+    "registeredBy": "arn:aws:iam::011237053542:user/saddam"
+}

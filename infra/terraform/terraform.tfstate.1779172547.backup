@@ -1,7 +1,7 @@
 {
   "version": 4,
   "terraform_version": "1.15.2",
-  "serial": 959,
+  "serial": 946,
   "lineage": "8e545170-3f9a-a8f5-7e55-ec1bb169ca45",
   "outputs": {
     "alb_url": {
@@ -167,20 +167,9 @@
             "aws_cognito_user_pool_client.main",
             "aws_cognito_user_pool_domain.main",
             "aws_ecr_repository.api_gateway",
-            "aws_ecr_repository.billing_app",
-            "aws_ecr_repository.inventory_app",
             "aws_ecs_cluster.main",
             "aws_ecs_service.api_gateway_service",
-            "aws_ecs_service.billing_service",
-            "aws_ecs_service.inventory_service",
             "aws_ecs_task_definition.api_gateway",
-            "aws_ecs_task_definition.billing_stack",
-            "aws_ecs_task_definition.inventory_stack",
-            "aws_efs_access_point.billing_db",
-            "aws_efs_access_point.inventory_db",
-            "aws_efs_file_system.db_data",
-            "aws_efs_mount_target.private_1",
-            "aws_efs_mount_target.private_2",
             "aws_iam_role.ecs_execution_role",
             "aws_lb.main",
             "aws_lb_listener.http",
@@ -188,12 +177,6 @@
             "aws_lb_target_group.api_gateway",
             "aws_security_group.alb_sg",
             "aws_security_group.ecs_sg",
-            "aws_security_group.efs_sg",
-            "aws_service_discovery_private_dns_namespace.local",
-            "aws_service_discovery_service.billing",
-            "aws_service_discovery_service.inventory",
-            "aws_ssm_parameter.billing_db_password",
-            "aws_ssm_parameter.inventory_db_password",
             "aws_ssm_parameter.rabbitmq_password",
             "aws_subnet.private_1",
             "aws_subnet.private_2",
@@ -202,8 +185,6 @@
             "aws_vpc.main",
             "data.aws_region.current",
             "random_integer.cognito_domain",
-            "random_password.billing_db_password",
-            "random_password.inventory_db_password",
             "random_password.rabbitmq_password",
             "tls_private_key.alb_cert",
             "tls_self_signed_cert.alb_cert"
@@ -259,6 +240,7 @@
             "aws_ecs_service.billing_service",
             "aws_ecs_task_definition.billing_stack",
             "aws_efs_access_point.billing_db",
+            "aws_efs_access_point.rabbitmq",
             "aws_efs_file_system.db_data",
             "aws_efs_mount_target.private_1",
             "aws_efs_mount_target.private_2",
@@ -387,20 +369,9 @@
             "aws_cognito_user_pool_client.main",
             "aws_cognito_user_pool_domain.main",
             "aws_ecr_repository.api_gateway",
-            "aws_ecr_repository.billing_app",
-            "aws_ecr_repository.inventory_app",
             "aws_ecs_cluster.main",
             "aws_ecs_service.api_gateway_service",
-            "aws_ecs_service.billing_service",
-            "aws_ecs_service.inventory_service",
             "aws_ecs_task_definition.api_gateway",
-            "aws_ecs_task_definition.billing_stack",
-            "aws_ecs_task_definition.inventory_stack",
-            "aws_efs_access_point.billing_db",
-            "aws_efs_access_point.inventory_db",
-            "aws_efs_file_system.db_data",
-            "aws_efs_mount_target.private_1",
-            "aws_efs_mount_target.private_2",
             "aws_iam_role.ecs_execution_role",
             "aws_lb.main",
             "aws_lb_listener.http",
@@ -408,12 +379,6 @@
             "aws_lb_target_group.api_gateway",
             "aws_security_group.alb_sg",
             "aws_security_group.ecs_sg",
-            "aws_security_group.efs_sg",
-            "aws_service_discovery_private_dns_namespace.local",
-            "aws_service_discovery_service.billing",
-            "aws_service_discovery_service.inventory",
-            "aws_ssm_parameter.billing_db_password",
-            "aws_ssm_parameter.inventory_db_password",
             "aws_ssm_parameter.rabbitmq_password",
             "aws_subnet.private_1",
             "aws_subnet.private_2",
@@ -422,8 +387,6 @@
             "aws_vpc.main",
             "data.aws_region.current",
             "random_integer.cognito_domain",
-            "random_password.billing_db_password",
-            "random_password.inventory_db_password",
             "random_password.rabbitmq_password",
             "tls_private_key.alb_cert",
             "tls_self_signed_cert.alb_cert"
@@ -471,6 +434,7 @@
             "aws_ecs_service.billing_service",
             "aws_ecs_task_definition.billing_stack",
             "aws_efs_access_point.billing_db",
+            "aws_efs_access_point.rabbitmq",
             "aws_efs_file_system.db_data",
             "aws_efs_mount_target.private_1",
             "aws_efs_mount_target.private_2",
@@ -1225,7 +1189,7 @@
               "Owner": "Team",
               "Project": "CloudDesign"
             },
-            "task_definition": "arn:aws:ecs:eu-north-1:011237053542:task-definition/api-gateway-task:15",
+            "task_definition": "arn:aws:ecs:eu-north-1:011237053542:task-definition/api-gateway-task:13",
             "timeouts": null,
             "triggers": {},
             "volume_configuration": [],
@@ -1242,19 +1206,8 @@
             "aws_cognito_user_pool_client.main",
             "aws_cognito_user_pool_domain.main",
             "aws_ecr_repository.api_gateway",
-            "aws_ecr_repository.billing_app",
-            "aws_ecr_repository.inventory_app",
             "aws_ecs_cluster.main",
-            "aws_ecs_service.billing_service",
-            "aws_ecs_service.inventory_service",
             "aws_ecs_task_definition.api_gateway",
-            "aws_ecs_task_definition.billing_stack",
-            "aws_ecs_task_definition.inventory_stack",
-            "aws_efs_access_point.billing_db",
-            "aws_efs_access_point.inventory_db",
-            "aws_efs_file_system.db_data",
-            "aws_efs_mount_target.private_1",
-            "aws_efs_mount_target.private_2",
             "aws_iam_role.ecs_execution_role",
             "aws_lb.main",
             "aws_lb_listener.http",
@@ -1262,12 +1215,6 @@
             "aws_lb_target_group.api_gateway",
             "aws_security_group.alb_sg",
             "aws_security_group.ecs_sg",
-            "aws_security_group.efs_sg",
-            "aws_service_discovery_private_dns_namespace.local",
-            "aws_service_discovery_service.billing",
-            "aws_service_discovery_service.inventory",
-            "aws_ssm_parameter.billing_db_password",
-            "aws_ssm_parameter.inventory_db_password",
             "aws_ssm_parameter.rabbitmq_password",
             "aws_subnet.private_1",
             "aws_subnet.private_2",
@@ -1276,8 +1223,6 @@
             "aws_vpc.main",
             "data.aws_region.current",
             "random_integer.cognito_domain",
-            "random_password.billing_db_password",
-            "random_password.inventory_db_password",
             "random_password.rabbitmq_password",
             "tls_private_key.alb_cert",
             "tls_self_signed_cert.alb_cert"
@@ -1315,7 +1260,7 @@
             "enable_ecs_managed_tags": false,
             "enable_execute_command": false,
             "force_delete": null,
-            "force_new_deployment": false,
+            "force_new_deployment": true,
             "health_check_grace_period_seconds": 0,
             "iam_role": "/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS",
             "id": "arn:aws:ecs:eu-north-1:011237053542:service/cloud-design-cluster-v2/billing-service",
@@ -1353,7 +1298,7 @@
               "Owner": "Team",
               "Project": "CloudDesign"
             },
-            "task_definition": "arn:aws:ecs:eu-north-1:011237053542:task-definition/billing-stack-task:35",
+            "task_definition": "arn:aws:ecs:eu-north-1:011237053542:task-definition/billing-stack-task:34",
             "timeouts": null,
             "triggers": {},
             "volume_configuration": [],
@@ -1369,6 +1314,7 @@
             "aws_ecs_cluster.main",
             "aws_ecs_task_definition.billing_stack",
             "aws_efs_access_point.billing_db",
+            "aws_efs_access_point.rabbitmq",
             "aws_efs_file_system.db_data",
             "aws_efs_mount_target.private_1",
             "aws_efs_mount_target.private_2",
@@ -1420,7 +1366,7 @@
             "enable_ecs_managed_tags": false,
             "enable_execute_command": false,
             "force_delete": null,
-            "force_new_deployment": false,
+            "force_new_deployment": true,
             "health_check_grace_period_seconds": 0,
             "iam_role": "/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS",
             "id": "arn:aws:ecs:eu-north-1:011237053542:service/cloud-design-cluster-v2/inventory-service",
@@ -1502,9 +1448,9 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/api-gateway-task:15",
+            "arn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/api-gateway-task:13",
             "arn_without_revision": "arn:aws:ecs:eu-north-1:011237053542:task-definition/api-gateway-task",
-            "container_definitions": "[{\"environment\":[{\"name\":\"BILLING_SERVICE_URL\",\"value\":\"http://billing-app.local:8080\"},{\"name\":\"GATEWAY_PORT\",\"value\":\"3000\"},{\"name\":\"INVENTORY_SERVICE_URL\",\"value\":\"http://inventory-app.local:8080\"},{\"name\":\"RABBITMQ_HOST\",\"value\":\"billing-app.local\"},{\"name\":\"RABBITMQ_PORT\",\"value\":\"5672\"},{\"name\":\"RABBITMQ_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"healthCheck\":{\"command\":[\"CMD-SHELL\",\"curl -f http://localhost:3000/health || exit 1\"],\"interval\":15,\"retries\":3,\"startPeriod\":180,\"timeout\":5},\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-api-gateway:v1\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"api-gateway\"}},\"memory\":1024,\"mountPoints\":[],\"name\":\"api-gateway\",\"portMappings\":[{\"containerPort\":3000,\"hostPort\":3000,\"protocol\":\"tcp\"}],\"secrets\":[{\"name\":\"RABBITMQ_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password\"}],\"systemControls\":[],\"volumesFrom\":[]}]",
+            "container_definitions": "[{\"environment\":[{\"name\":\"INVENTORY_SERVICE_URL\",\"value\":\"http://inventory-app.local:8080\"},{\"name\":\"PORT\",\"value\":\"3000\"},{\"name\":\"RABBITMQ_HOST\",\"value\":\"billing-app.local\"},{\"name\":\"RABBITMQ_PORT\",\"value\":\"5672\"},{\"name\":\"RABBITMQ_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-api-gateway:v1\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"api-gateway\"}},\"memory\":1024,\"mountPoints\":[],\"name\":\"api-gateway\",\"portMappings\":[{\"containerPort\":3000,\"hostPort\":3000,\"protocol\":\"tcp\"}],\"secrets\":[{\"name\":\"RABBITMQ_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password\"}],\"systemControls\":[],\"volumesFrom\":[]}]",
             "cpu": "256",
             "enable_fault_injection": false,
             "ephemeral_storage": [],
@@ -1521,10 +1467,10 @@
             "requires_compatibilities": [
               "EC2"
             ],
-            "revision": 15,
+            "revision": 13,
             "runtime_platform": [],
             "skip_destroy": false,
-            "tags": null,
+            "tags": {},
             "tags_all": {
               "Owner": "Team",
               "Project": "CloudDesign"
@@ -1556,9 +1502,9 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/billing-stack-task:35",
+            "arn": "arn:aws:ecs:eu-north-1:011237053542:task-definition/billing-stack-task:34",
             "arn_without_revision": "arn:aws:ecs:eu-north-1:011237053542:task-definition/billing-stack-task",
-            "container_definitions": "[{\"dependsOn\":[{\"condition\":\"HEALTHY\",\"containerName\":\"billing-database\"},{\"condition\":\"HEALTHY\",\"containerName\":\"rabbitmq\"}],\"environment\":[{\"name\":\"BILLING_DB_HOST\",\"value\":\"localhost\"},{\"name\":\"BILLING_DB_NAME\",\"value\":\"billing\"},{\"name\":\"BILLING_DB_PORT\",\"value\":\"5432\"},{\"name\":\"BILLING_DB_USER\",\"value\":\"billinguser\"},{\"name\":\"RABBITMQ_HOST\",\"value\":\"localhost\"},{\"name\":\"RABBITMQ_PORT\",\"value\":\"5672\"},{\"name\":\"RABBITMQ_QUEUE\",\"value\":\"billing_queue\"},{\"name\":\"RABBITMQ_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-billing-app:v1\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-stream-prefix\":\"billing-app\",\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\"}},\"memory\":256,\"mountPoints\":[],\"name\":\"billing-app\",\"portMappings\":[],\"secrets\":[{\"name\":\"BILLING_DB_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/billing-db/password\"},{\"name\":\"RABBITMQ_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"PGDATA\",\"value\":\"/data/billing/pgdata\"},{\"name\":\"POSTGRES_DB\",\"value\":\"billing\"},{\"name\":\"POSTGRES_USER\",\"value\":\"billinguser\"}],\"essential\":true,\"healthCheck\":{\"command\":[\"CMD-SHELL\",\"pg_isready -U billinguser -d billing\"],\"interval\":10,\"retries\":5,\"startPeriod\":60,\"timeout\":5},\"image\":\"postgres:13-alpine\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"billing-db\"}},\"memory\":256,\"mountPoints\":[{\"containerPath\":\"/data/billing\",\"readOnly\":false,\"sourceVolume\":\"billing-db-data\"}],\"name\":\"billing-database\",\"portMappings\":[],\"secrets\":[{\"name\":\"POSTGRES_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/billing-db/password\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"RABBITMQ_DEFAULT_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"healthCheck\":{\"command\":[\"CMD\",\"rabbitmq-diagnostics\",\"ping\"],\"interval\":15,\"retries\":5,\"startPeriod\":60,\"timeout\":10},\"image\":\"rabbitmq:3-management-alpine\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"rabbitmq\"}},\"memory\":384,\"mountPoints\":[],\"name\":\"rabbitmq\",\"portMappings\":[{\"containerPort\":5672,\"hostPort\":5672,\"protocol\":\"tcp\"},{\"containerPort\":15672,\"hostPort\":15672,\"protocol\":\"tcp\"}],\"secrets\":[{\"name\":\"RABBITMQ_DEFAULT_PASS\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password\"}],\"systemControls\":[],\"volumesFrom\":[]}]",
+            "container_definitions": "[{\"dependsOn\":[{\"condition\":\"HEALTHY\",\"containerName\":\"billing-database\"},{\"condition\":\"HEALTHY\",\"containerName\":\"rabbitmq\"}],\"environment\":[{\"name\":\"BILLING_DB_HOST\",\"value\":\"localhost\"},{\"name\":\"BILLING_DB_NAME\",\"value\":\"billing\"},{\"name\":\"BILLING_DB_PORT\",\"value\":\"5432\"},{\"name\":\"BILLING_DB_USER\",\"value\":\"billinguser\"},{\"name\":\"RABBITMQ_HOST\",\"value\":\"localhost\"},{\"name\":\"RABBITMQ_PORT\",\"value\":\"5672\"},{\"name\":\"RABBITMQ_QUEUE\",\"value\":\"billing_queue\"},{\"name\":\"RABBITMQ_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"image\":\"011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-billing-app:v1\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"billing-app\"}},\"memory\":640,\"mountPoints\":[],\"name\":\"billing-app\",\"portMappings\":[],\"secrets\":[{\"name\":\"BILLING_DB_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/billing-db/password\"},{\"name\":\"RABBITMQ_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"PGDATA\",\"value\":\"/data/billing/pgdata\"},{\"name\":\"POSTGRES_DB\",\"value\":\"billing\"},{\"name\":\"POSTGRES_USER\",\"value\":\"billinguser\"}],\"essential\":true,\"healthCheck\":{\"command\":[\"CMD-SHELL\",\"pg_isready -U billinguser -d billing\"],\"interval\":10,\"retries\":5,\"startPeriod\":60,\"timeout\":5},\"image\":\"postgres:13-alpine\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"billing-db\"}},\"memory\":512,\"mountPoints\":[{\"containerPath\":\"/data/billing\",\"readOnly\":false,\"sourceVolume\":\"billing-db-data\"}],\"name\":\"billing-database\",\"portMappings\":[],\"secrets\":[{\"name\":\"POSTGRES_PASSWORD\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/billing-db/password\"}],\"systemControls\":[],\"volumesFrom\":[]},{\"environment\":[{\"name\":\"RABBITMQ_DEFAULT_USER\",\"value\":\"rabbitmq_user\"}],\"essential\":true,\"healthCheck\":{\"command\":[\"CMD-SHELL\",\"rabbitmq-diagnostics ping\"],\"interval\":10,\"retries\":5,\"startPeriod\":60,\"timeout\":5},\"image\":\"rabbitmq:3-management-alpine\",\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/cloud-design\",\"awslogs-region\":\"eu-north-1\",\"awslogs-stream-prefix\":\"rabbitmq\"}},\"memory\":768,\"mountPoints\":[{\"containerPath\":\"/var/lib/rabbitmq\",\"readOnly\":false,\"sourceVolume\":\"rabbitmq-data\"}],\"name\":\"rabbitmq\",\"portMappings\":[{\"containerPort\":5672,\"hostPort\":5672,\"protocol\":\"tcp\"},{\"containerPort\":15672,\"hostPort\":15672,\"protocol\":\"tcp\"}],\"secrets\":[{\"name\":\"RABBITMQ_DEFAULT_PASS\",\"valueFrom\":\"arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password\"}],\"systemControls\":[],\"volumesFrom\":[]}]",
             "cpu": "512",
             "enable_fault_injection": false,
             "ephemeral_storage": [],
@@ -1567,7 +1513,7 @@
             "id": "billing-stack-task",
             "inference_accelerator": [],
             "ipc_mode": "",
-            "memory": "1024",
+            "memory": "1280",
             "network_mode": "awsvpc",
             "pid_mode": "",
             "placement_constraints": [],
@@ -1575,11 +1521,14 @@
             "requires_compatibilities": [
               "EC2"
             ],
-            "revision": 35,
+            "revision": 34,
             "runtime_platform": [],
             "skip_destroy": false,
-            "tags": {},
+            "tags": {
+              "ForceUpdate": "v2"
+            },
             "tags_all": {
+              "ForceUpdate": "v2",
               "Owner": "Team",
               "Project": "CloudDesign"
             },
@@ -1606,6 +1555,27 @@
                 "fsx_windows_file_server_volume_configuration": [],
                 "host_path": "",
                 "name": "billing-db-data"
+              },
+              {
+                "configure_at_launch": false,
+                "docker_volume_configuration": [],
+                "efs_volume_configuration": [
+                  {
+                    "authorization_config": [
+                      {
+                        "access_point_id": "fsap-08252ab34bbc3ba66",
+                        "iam": "DISABLED"
+                      }
+                    ],
+                    "file_system_id": "fs-00175138dac6f138e",
+                    "root_directory": "/",
+                    "transit_encryption": "ENABLED",
+                    "transit_encryption_port": 0
+                  }
+                ],
+                "fsx_windows_file_server_volume_configuration": [],
+                "host_path": "",
+                "name": "rabbitmq-data"
               }
             ]
           },
@@ -1616,6 +1586,7 @@
             "aws_cloudwatch_log_group.ecs_logs",
             "aws_ecr_repository.billing_app",
             "aws_efs_access_point.billing_db",
+            "aws_efs_access_point.rabbitmq",
             "aws_efs_file_system.db_data",
             "aws_iam_role.ecs_execution_role",
             "aws_ssm_parameter.billing_db_password",
@@ -1809,6 +1780,57 @@
     },
     {
       "mode": "managed",
+      "type": "aws_efs_access_point",
+      "name": "rabbitmq",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:elasticfilesystem:eu-north-1:011237053542:access-point/fsap-08252ab34bbc3ba66",
+            "file_system_arn": "arn:aws:elasticfilesystem:eu-north-1:011237053542:file-system/fs-00175138dac6f138e",
+            "file_system_id": "fs-00175138dac6f138e",
+            "id": "fsap-08252ab34bbc3ba66",
+            "owner_id": "011237053542",
+            "posix_user": [
+              {
+                "gid": 999,
+                "secondary_gids": [],
+                "uid": 999
+              }
+            ],
+            "root_directory": [
+              {
+                "creation_info": [
+                  {
+                    "owner_gid": 999,
+                    "owner_uid": 999,
+                    "permissions": "0755"
+                  }
+                ],
+                "path": "/rabbitmq-data-v5"
+              }
+            ],
+            "tags": {
+              "Name": "rabbitmq-access-point"
+            },
+            "tags_all": {
+              "Name": "rabbitmq-access-point",
+              "Owner": "Team",
+              "Project": "CloudDesign"
+            }
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_efs_file_system.db_data"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
       "type": "aws_efs_file_system",
       "name": "db_data",
       "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
@@ -1837,9 +1859,9 @@
             "provisioned_throughput_in_mibps": 0,
             "size_in_bytes": [
               {
-                "value": 106586112,
+                "value": 106514432,
                 "value_in_ia": 0,
-                "value_in_standard": 106586112
+                "value_in_standard": 106514432
               }
             ],
             "tags": {

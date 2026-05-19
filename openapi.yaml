@@ -37,14 +37,10 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
 
-# ============================================================================================
-# SERVERS BLOCK - Where the API Can Be Accessed
-# ============================================================================================
-# Purpose: Lists all available API endpoints (development, staging, production)
-# Used by: API clients to know where to send requests
+
 servers:
-  - url: http://192.168.56.10:30000
-    description: API Gateway (production - Vagrant VM)
+  - url: http://cloud-design-alb-1317185634.eu-north-1.elb.amazonaws.com
+    description: API Gateway (production - AWS ALB)
   - url: http://localhost:3000
     description: API Gateway (local development)
 
@@ -369,13 +365,6 @@ paths:
           content:
             application/json:
               schema:
-                # =======================================================================================
-                # HTTP DELETE /api/movies/{id} - Delete a Single Movie
-                # =======================================================================================
-                # Purpose: Remove one specific movie from the database
-                # HTTP Method: DELETE (destructive)
-                # URL Parameter: id (integer) - The movie to delete
-                # Response: 200 OK if deleted, or 404 if movie doesn't exist
                 $ref: "#/components/schemas/ErrorResponse"
         "500":
           description: Server error

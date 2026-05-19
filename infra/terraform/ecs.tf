@@ -179,9 +179,17 @@ resource "aws_ecs_task_definition" "api_gateway" {
       memory    = 1024
       essential = true
       portMappings = [{ containerPort = 3000, hostPort = 3000, protocol = "tcp" }]
+      healthCheck = {
+        command     = ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
+        interval    = 15
+        timeout     = 5
+        retries     = 3
+        startPeriod = 180
+      }
       environment = [
+        { name = "BILLING_SERVICE_URL",   value = "http://billing-app.local:8080" },
         { name = "INVENTORY_SERVICE_URL", value = "http://inventory-app.local:8080" },
-        { name = "PORT",                  value = "3000" },
+        { name = "GATEWAY_PORT",          value = "3000" },
         { name = "RABBITMQ_HOST",         value = "billing-app.local" },
         { name = "RABBITMQ_PORT",         value = "5672" },
         { name = "RABBITMQ_USER",         value = "rabbitmq_user" }
@@ -208,7 +216,7 @@ resource "aws_ecs_task_definition" "billing_stack" {
   requires_compatibilities = ["EC2"]
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   cpu                      = "512"
-  memory                   = "1280"
+  memory                   = "1024"
 
   volume {
     name = "billing-db-data"
@@ -222,23 +230,11 @@ resource "aws_ecs_task_definition" "billing_stack" {
     }
   }
 
-  volume {
-    name = "rabbitmq-data"
-    efs_volume_configuration {
-      file_system_id     = aws_efs_file_system.db_data.id
-      transit_encryption = "ENABLED"
-      authorization_config {
-        access_point_id = aws_efs_access_point.rabbitmq.id
-        iam             = "DISABLED"
-      }
-    }
-  }
-
   container_definitions = jsonencode([
     {
   name      = "rabbitmq"
   image     = "rabbitmq:3-management-alpine"
-  memory    = 768
+  memory    = 384
   essential = true
   environment = [
     { name = "RABBITMQ_DEFAULT_USER", value = "rabbitmq_user" }
@@ -250,15 +246,10 @@ resource "aws_ecs_task_definition" "billing_stack" {
     { containerPort = 5672, hostPort = 5672, protocol = "tcp" },
     { containerPort = 15672, hostPort = 15672, protocol = "tcp" }
   ]
-  mountPoints = [{
-    sourceVolume  = "rabbitmq-data"
-    containerPath = "/var/lib/rabbitmq"
-    readOnly      = false
-  }]
   healthCheck = {
-    command     = ["CMD-SHELL", "rabbitmq-diagnostics ping"]
-    interval    = 10
-    timeout     = 5
+    command     = ["CMD", "rabbitmq-diagnostics", "ping"]
+    interval    = 15
+    timeout     = 10
     retries     = 5
     startPeriod = 60
   }
@@ -274,7 +265,7 @@ resource "aws_ecs_task_definition" "billing_stack" {
     {
       name              = "billing-database"
       image             = "postgres:13-alpine"
-      memory            = 512
+      memory            = 256
       essential         = true
       environment = [
         { name = "POSTGRES_DB",   value = "billing" },
@@ -302,7 +293,7 @@ resource "aws_ecs_task_definition" "billing_stack" {
     {
       name              = "billing-app"
       image             = "${aws_ecr_repository.billing_app.repository_url}:v1"
-      memory            = 640
+      memory            = 256
       essential         = true
       dependsOn = [
         { containerName = "billing-database", condition = "HEALTHY" },
@@ -438,6 +429,14 @@ resource "aws_ecs_service" "api_gateway_service" {
     container_name   = "api-gateway"
     container_port   = 3000
   }
+   # ADDED: ensures ALB and both listeners are fully created before ECS service
+  depends_on = [
+    aws_lb_listener.http,
+    aws_lb_listener.https,
+    aws_lb.main,
+    aws_ecs_service.billing_service,
+    aws_ecs_service.inventory_service,
+  ]
 }
 
 resource "aws_ecs_service" "billing_service" {
@@ -446,7 +445,6 @@ resource "aws_ecs_service" "billing_service" {
   task_definition = aws_ecs_task_definition.billing_stack.arn
   desired_count   = 1
   launch_type     = "EC2"
-  force_new_deployment = true
 
   deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 100
@@ -472,7 +470,6 @@ resource "aws_ecs_service" "inventory_service" {
   task_definition = aws_ecs_task_definition.inventory_stack.arn
   desired_count   = 1
   launch_type     = "EC2"
-  force_new_deployment = true
 
   deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 100

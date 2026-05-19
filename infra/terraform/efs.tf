@@ -61,7 +61,7 @@ resource "aws_efs_access_point" "billing_db" {
     creation_info {
       owner_uid   = 70
       owner_gid   = 70
-      permissions = "0700"
+      permissions = "0755"
     }
   }
 
@@ -83,33 +83,11 @@ resource "aws_efs_access_point" "inventory_db" {
     creation_info {
       owner_uid   = 70
       owner_gid   = 70
-      permissions = "0700"
+      permissions = "0755"
     }
   }
 
   tags = {
     Name = "inventory-db-access-point"
-  }
-}
-
-resource "aws_efs_access_point" "rabbitmq" {
-  file_system_id = aws_efs_file_system.db_data.id
-
-  posix_user {
-    uid = 999
-    gid = 999
-  }
-
-  root_directory {
-    path = "/rabbitmq-data-v5"
-    creation_info {
-      owner_uid   = 999
-      owner_gid   = 999
-      permissions = "0700"
-    }
-  }
-
-  tags = {
-    Name = "rabbitmq-access-point"
   }
 }

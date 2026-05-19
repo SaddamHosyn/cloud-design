@@ -1,0 +1,88 @@
+[0m[1mrandom_integer.cognito_domain: Refreshing state... [id=303076][0m
+[0m[1mrandom_password.inventory_db_password: Refreshing state... [id=none][0m
+[0m[1mrandom_password.billing_db_password: Refreshing state... [id=none][0m
+[0m[1mrandom_password.rabbitmq_password: Refreshing state... [id=none][0m
+[0m[1mtls_private_key.alb_cert: Refreshing state... [id=b53c191213cc113c6ef8d1f93600ce0a60cc0e7e][0m
+[0m[1mtls_self_signed_cert.alb_cert: Refreshing state... [id=205770165135253499247006557887676905238][0m
+[0m[1maws_iam_role.ecs_execution_role: Refreshing state... [id=ecs_execution_role][0m
+[0m[1maws_ecr_repository.api_gateway: Refreshing state... [id=cloud-design-api-gateway][0m
+[0m[1maws_cloudwatch_log_group.ecs_logs: Refreshing state... [id=/ecs/cloud-design][0m
+[0m[1maws_ecr_repository.billing_app: Refreshing state... [id=cloud-design-billing-app][0m
+[0m[1maws_efs_file_system.db_data: Refreshing state... [id=fs-00175138dac6f138e][0m
+[0m[1maws_vpc.main: Refreshing state... [id=vpc-0d7bd7c8604b61dd6][0m
+[0m[1mdata.aws_ssm_parameter.ecs_ami: Reading...[0m[0m
+[0m[1maws_iam_role.ecs_instance_role: Refreshing state... [id=ecs_instance_role][0m
+[0m[1maws_acm_certificate.alb_cert: Refreshing state... [id=arn:aws:acm:eu-north-1:011237053542:certificate/58273844-cf6a-4c94-a107-f8fda488fde9][0m
+[0m[1maws_cognito_user_pool.main: Refreshing state... [id=eu-north-1_qFWpBIUIE][0m
+[0m[1mdata.aws_ssm_parameter.ecs_ami: Read complete after 0s [id=/aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id][0m
+[0m[1maws_ssm_parameter.rabbitmq_password: Refreshing state... [id=/cloud-design/rabbitmq/password][0m
+[0m[1maws_ecr_repository.inventory_app: Refreshing state... [id=cloud-design-inventory-app][0m
+[0m[1mdata.aws_region.current: Reading...[0m[0m
+[0m[1mdata.aws_region.current: Read complete after 0s [id=eu-north-1][0m
+[0m[1maws_ssm_parameter.inventory_db_password: Refreshing state... [id=/cloud-design/inventory-db/password][0m
+[0m[1maws_ssm_parameter.billing_db_password: Refreshing state... [id=/cloud-design/billing-db/password][0m
+[0m[1maws_ecs_cluster.main: Refreshing state... [id=arn:aws:ecs:eu-north-1:011237053542:cluster/cloud-design-cluster-v2][0m
+[0m[1maws_eip.nat: Refreshing state... [id=eipalloc-018c86f91dc38ae13][0m
+[0m[1maws_efs_access_point.inventory_db: Refreshing state... [id=fsap-01d3e09311532f76d][0m
+[0m[1maws_efs_access_point.rabbitmq: Refreshing state... [id=fsap-08252ab34bbc3ba66][0m
+[0m[1maws_cloudwatch_dashboard.main: Refreshing state... [id=cloud-design-dashboard][0m
+[0m[1maws_efs_access_point.billing_db: Refreshing state... [id=fsap-0770d30da226746e7][0m
+[0m[1maws_cognito_user_pool_domain.main: Refreshing state... [id=cloud-design-auth-domain-303076][0m
+[0m[1maws_cognito_user_pool_client.main: Refreshing state... [id=4ok8q19bld1do8h01m1ibf9fka][0m
+[0m[1maws_internet_gateway.igw: Refreshing state... [id=igw-0dbc3f5235335c7bf][0m
+[0m[1maws_subnet.private_2: Refreshing state... [id=subnet-030128f7274f45b9d][0m
+[0m[1maws_service_discovery_private_dns_namespace.local: Refreshing state... [id=ns-6tkelbya3ebo7oip][0m
+[0m[1maws_subnet.public_2: Refreshing state... [id=subnet-0c2ea863e58b6b16c][0m
+[0m[1maws_subnet.public_1: Refreshing state... [id=subnet-0c72c098649b47a9b][0m
+[0m[1maws_security_group.alb_sg: Refreshing state... [id=sg-0be85fe8c8e073638][0m
+[0m[1maws_lb_target_group.api_gateway: Refreshing state... [id=arn:aws:elasticloadbalancing:eu-north-1:011237053542:targetgroup/api-gateway-tg-final/99bf2113130c63cf][0m
+[0m[1maws_subnet.private_1: Refreshing state... [id=subnet-0c66ad93264d4e685][0m
+[0m[1maws_route_table.public: Refreshing state... [id=rtb-0564593e05435fc7c][0m
+[0m[1maws_service_discovery_service.billing: Refreshing state... [id=srv-rpq2pqbmlonzz5kv][0m
+[0m[1maws_service_discovery_service.inventory: Refreshing state... [id=srv-ardp2bynxegbxajh][0m
+[0m[1maws_security_group.ecs_sg: Refreshing state... [id=sg-0a01b2aa12eafdd75][0m
+[0m[1maws_nat_gateway.nat: Refreshing state... [id=nat-02f7ba7fa8242ce5e][0m
+[0m[1maws_lb.main: Refreshing state... [id=arn:aws:elasticloadbalancing:eu-north-1:011237053542:loadbalancer/app/cloud-design-alb/f79b61a22daaccd6][0m
+[0m[1maws_route_table_association.public_1: Refreshing state... [id=rtbassoc-0737940c1a3dccc3a][0m
+[0m[1maws_route_table_association.public_2: Refreshing state... [id=rtbassoc-0886d72bdaa98dba8][0m
+[0m[1maws_route_table.private: Refreshing state... [id=rtb-033a2908a93759b43][0m
+[0m[1maws_security_group.efs_sg: Refreshing state... [id=sg-0aa5646e7c1e94baf][0m
+[0m[1maws_efs_mount_target.private_1: Refreshing state... [id=fsmt-0b68d3346ec6eae53][0m
+[0m[1maws_efs_mount_target.private_2: Refreshing state... [id=fsmt-0e936cb0cdf97d4a1][0m
+[0m[1maws_route_table_association.private_1: Refreshing state... [id=rtbassoc-0f7b0d207a0a09fd5][0m
+[0m[1maws_route_table_association.private_2: Refreshing state... [id=rtbassoc-05062e33833ec10e8][0m
+[0m[1maws_lb_listener.http: Refreshing state... [id=arn:aws:elasticloadbalancing:eu-north-1:011237053542:listener/app/cloud-design-alb/f79b61a22daaccd6/d412596f39b18f91][0m
+[0m[1maws_lb_listener.https: Refreshing state... [id=arn:aws:elasticloadbalancing:eu-north-1:011237053542:listener/app/cloud-design-alb/f79b61a22daaccd6/a26e5e2f5262c82d][0m
+[0m[1maws_iam_role_policy_attachment.ecs_instance_ssm_policy: Refreshing state... [id=ecs_instance_role-20260519034645263100000003][0m
+[0m[1maws_iam_role_policy_attachment.ecs_instance_role_policy: Refreshing state... [id=ecs_instance_role-20260519034645347800000004][0m
+[0m[1maws_iam_role_policy_attachment.ecs_instance_efs_policy: Refreshing state... [id=ecs_instance_role-20260519034645148900000002][0m
+[0m[1maws_iam_instance_profile.ecs_instance_profile: Refreshing state... [id=ecs_instance_profile][0m
+[0m[1maws_iam_role_policy_attachment.ecs_execution_role_policy: Refreshing state... [id=ecs_execution_role-20260519034644971900000001][0m
+[0m[1maws_iam_role_policy.ecs_execution_secrets: Refreshing state... [id=ecs_execution_role:ecs_execution_secrets_policy][0m
+[0m[1maws_ecs_task_definition.api_gateway: Refreshing state... [id=api-gateway-task][0m
+[0m[1maws_ecs_task_definition.inventory_stack: Refreshing state... [id=inventory-stack-task][0m
+[0m[1maws_ecs_task_definition.billing_stack: Refreshing state... [id=billing-stack-task][0m
+[0m[1maws_ecs_service.api_gateway_service: Refreshing state... [id=arn:aws:ecs:eu-north-1:011237053542:service/cloud-design-cluster-v2/api-gateway-service][0m
+[0m[1maws_ecs_service.inventory_service: Refreshing state... [id=arn:aws:ecs:eu-north-1:011237053542:service/cloud-design-cluster-v2/inventory-service][0m
+[0m[1maws_ecs_service.billing_service: Refreshing state... [id=arn:aws:ecs:eu-north-1:011237053542:service/cloud-design-cluster-v2/billing-service][0m
+[0m[1maws_appautoscaling_target.api_gateway: Refreshing state... [id=service/cloud-design-cluster-v2/api-gateway-service][0m
+[0m[1maws_appautoscaling_target.inventory: Refreshing state... [id=service/cloud-design-cluster-v2/inventory-service][0m
+[0m[1maws_appautoscaling_target.billing: Refreshing state... [id=service/cloud-design-cluster-v2/billing-service][0m
+[0m[1maws_appautoscaling_policy.inventory_cpu: Refreshing state... [id=inventory-cpu-scaling][0m
+[0m[1maws_appautoscaling_policy.api_gateway_cpu: Refreshing state... [id=api-gateway-cpu-scaling][0m
+[0m[1maws_appautoscaling_policy.billing_cpu: Refreshing state... [id=billing-cpu-scaling][0m
+[0m[1maws_launch_template.ecs_lt: Refreshing state... [id=lt-0050470319b774f98][0m
+[0m[1maws_autoscaling_group.ecs_asg: Refreshing state... [id=terraform-2026051903470656560000000a][0m
+[0m[1maws_ecs_capacity_provider.ec2: Refreshing state... [id=arn:aws:ecs:eu-north-1:011237053542:capacity-provider/ec2-capacity-provider][0m
+[0m[1maws_ecs_cluster_capacity_providers.main: Refreshing state... [id=cloud-design-cluster-v2][0m
+
+[0m[1m[32mNo changes.[0m[1m Your infrastructure matches the configuration.[0m
+
+[0mTerraform has compared your real infrastructure against your configuration
+and found no differences, so no changes are needed.
+[0m[1m[32m
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.[0m
+[0m[1m[32m
+Outputs:
+
+[0malb_url = "cloud-design-alb-1317185634.eu-north-1.elb.amazonaws.com"

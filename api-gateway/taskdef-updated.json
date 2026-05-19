@@ -1,0 +1,81 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "api-gateway",
+      "image": "011237053542.dkr.ecr.eu-north-1.amazonaws.com/cloud-design-api-gateway:fix-healthcheck-001",
+      "cpu": 0,
+      "memory": 1024,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "GATEWAY_PORT",
+          "value": "3000"
+        },
+        {
+          "name": "BILLING_SERVICE_URL",
+          "value": "http://billing-app.local:8080"
+        },
+        {
+          "name": "INVENTORY_SERVICE_URL",
+          "value": "http://inventory-app.local:8080"
+        },
+        {
+          "name": "RABBITMQ_HOST",
+          "value": "billing-app.local"
+        },
+        {
+          "name": "RABBITMQ_PORT",
+          "value": "5672"
+        },
+        {
+          "name": "RABBITMQ_USER",
+          "value": "rabbitmq_user"
+        }
+      ],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "secrets": [
+        {
+          "name": "RABBITMQ_PASSWORD",
+          "valueFrom": "arn:aws:ssm:eu-north-1:011237053542:parameter/cloud-design/rabbitmq/password"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/cloud-design",
+          "awslogs-region": "eu-north-1",
+          "awslogs-stream-prefix": "api-gateway"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "curl -f http://localhost:3000/health || exit 1"
+        ],
+        "interval": 15,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 180
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "api-gateway-task",
+  "executionRoleArn": "arn:aws:iam::011237053542:role/ecs_execution_role",
+  "networkMode": "awsvpc",
+  "volumes": [],
+  "placementConstraints": [],
+  "requiresCompatibilities": [
+    "EC2"
+  ],
+  "cpu": "256",
+  "memory": "1024"
+}
