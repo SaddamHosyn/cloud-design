@@ -35,7 +35,7 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
-  - url: https://cloud-design-alb-1317185634.eu-north-1.elb.amazonaws.com
+  - url: https://cloud-design-alb-1025202577.eu-north-1.elb.amazonaws.com
     description: API Gateway (production - AWS ALB)
   - url: http://localhost:3000
     description: API Gateway (local development)

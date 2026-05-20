@@ -134,7 +134,7 @@ resource "aws_launch_template" "ecs_lt" {
 resource "aws_autoscaling_group" "ecs_asg" {
   vpc_zone_identifier = [aws_subnet.private_1.id, aws_subnet.private_2.id]
   desired_capacity    = 3
-  max_size            = 3
+  max_size            = 8
   min_size            = 3
 
   launch_template {
@@ -190,7 +190,7 @@ resource "aws_ecs_task_definition" "api_gateway" {
         { name = "BILLING_SERVICE_URL", value = "http://billing-app.local:8080" },
         { name = "INVENTORY_SERVICE_URL", value = "http://inventory-app.local:8080" },
         { name = "GATEWAY_PORT", value = "3000" },
-        { name = "RABBITMQ_HOST", value = "billing-app.local" },
+        { name = "RABBITMQ_HOST", value = "rabbitmq.local" },
         { name = "RABBITMQ_PORT", value = "5672" },
         { name = "RABBITMQ_USER", value = "rabbitmq_user" }
       ]
@@ -201,6 +201,52 @@ resource "aws_ecs_task_definition" "api_gateway" {
           "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
           "awslogs-region"        = data.aws_region.current.name
           "awslogs-stream-prefix" = "api-gateway"
+        }
+      }
+    }
+  ])
+}
+
+# ==========================================
+# TASK DEFINITION: RabbitMQ
+# ==========================================
+resource "aws_ecs_task_definition" "rabbitmq" {
+  family                   = "rabbitmq-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["EC2"]
+  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+  cpu                      = "256"
+  memory                   = "512"
+
+  container_definitions = jsonencode([
+    {
+      name      = "rabbitmq"
+      image     = "rabbitmq:3-management-alpine"
+      memory    = 512
+      essential = true
+      environment = [
+        { name = "RABBITMQ_DEFAULT_USER", value = "rabbitmq_user" }
+      ]
+      secrets = [
+        { name = "RABBITMQ_DEFAULT_PASS", valueFrom = aws_ssm_parameter.rabbitmq_password.arn }
+      ]
+      portMappings = [
+        { containerPort = 5672, hostPort = 5672, protocol = "tcp" },
+        { containerPort = 15672, hostPort = 15672, protocol = "tcp" }
+      ]
+      healthCheck = {
+        command     = ["CMD", "rabbitmq-diagnostics", "ping"]
+        interval    = 15
+        timeout     = 10
+        retries     = 5
+        startPeriod = 60
+      }
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-stream-prefix" = "rabbitmq"
         }
       }
     }
@@ -229,39 +275,7 @@ resource "aws_ecs_task_definition" "billing_stack" {
       }
     }
   }
-
   container_definitions = jsonencode([
-    {
-      name      = "rabbitmq"
-      image     = "rabbitmq:3-management-alpine"
-      memory    = 384
-      essential = true
-      environment = [
-        { name = "RABBITMQ_DEFAULT_USER", value = "rabbitmq_user" }
-      ]
-      secrets = [
-        { name = "RABBITMQ_DEFAULT_PASS", valueFrom = aws_ssm_parameter.rabbitmq_password.arn }
-      ]
-      portMappings = [
-        { containerPort = 5672, hostPort = 5672, protocol = "tcp" },
-        { containerPort = 15672, hostPort = 15672, protocol = "tcp" }
-      ]
-      healthCheck = {
-        command     = ["CMD", "rabbitmq-diagnostics", "ping"]
-        interval    = 15
-        timeout     = 10
-        retries     = 5
-        startPeriod = 60
-      }
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
-          "awslogs-region"        = data.aws_region.current.name
-          "awslogs-stream-prefix" = "rabbitmq"
-        }
-      }
-    },
     {
       name      = "billing-database"
       image     = "postgres:13-alpine"
@@ -296,15 +310,14 @@ resource "aws_ecs_task_definition" "billing_stack" {
       memory    = 256
       essential = true
       dependsOn = [
-        { containerName = "billing-database", condition = "HEALTHY" },
-        { containerName = "rabbitmq", condition = "HEALTHY" }
+        { containerName = "billing-database", condition = "HEALTHY" }
       ]
       environment = [
         { name = "BILLING_DB_HOST", value = "localhost" },
         { name = "BILLING_DB_PORT", value = "5432" },
         { name = "BILLING_DB_NAME", value = "billing" },
         { name = "BILLING_DB_USER", value = "billinguser" },
-        { name = "RABBITMQ_HOST", value = "localhost" },
+        { name = "RABBITMQ_HOST", value = "rabbitmq.local" },
         { name = "RABBITMQ_PORT", value = "5672" },
         { name = "RABBITMQ_USER", value = "rabbitmq_user" },
         { name = "RABBITMQ_QUEUE", value = "billing_queue" }
@@ -434,9 +447,30 @@ resource "aws_ecs_service" "api_gateway_service" {
     aws_lb_listener.http,
     aws_lb_listener.https,
     aws_lb.main,
+    aws_ecs_service.rabbitmq_service,
     aws_ecs_service.billing_service,
     aws_ecs_service.inventory_service,
   ]
+}
+
+resource "aws_ecs_service" "rabbitmq_service" {
+  name            = "rabbitmq-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.rabbitmq.arn
+  desired_count   = 1
+  launch_type     = "EC2"
+
+  deployment_minimum_healthy_percent = 0
+  deployment_maximum_percent         = 100
+
+  network_configuration {
+    subnets         = [aws_subnet.private_1.id, aws_subnet.private_2.id]
+    security_groups = [aws_security_group.ecs_sg.id]
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.rabbitmq.arn
+  }
 }
 
 resource "aws_ecs_service" "billing_service" {
@@ -500,6 +534,19 @@ resource "aws_service_discovery_private_dns_namespace" "local" {
 
 resource "aws_service_discovery_service" "billing" {
   name = "billing-app"
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.local.id
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+    routing_policy = "MULTIVALUE"
+  }
+  health_check_custom_config { failure_threshold = 1 }
+}
+
+resource "aws_service_discovery_service" "rabbitmq" {
+  name = "rabbitmq"
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.local.id
     dns_records {
