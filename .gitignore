@@ -1,2 +1,37 @@
+# ==========================================
+# Terraform Professional GitIgnore
+# ==========================================
+
+# Local .terraform path (contains OS-specific binaries)
 .terraform/
 **/.terraform/
+
+# Local state files (contain plain-text secrets and passwords!)
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all variable files which might contain secrets
+*.tfvars
+*.tfvars.json
+
+# Ignore override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Ignore plan files
+tfplan
+tfplan.binary
+
+
+auditquest.md
