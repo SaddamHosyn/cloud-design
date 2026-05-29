@@ -556,7 +556,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://cloud-design-alb-1025202577.eu-north-1.elb.amazonaws.com",
+      "value": "http://cloud-design-alb-2085979927.eu-north-1.elb.amazonaws.com",
       "type": "string"
     },
     {

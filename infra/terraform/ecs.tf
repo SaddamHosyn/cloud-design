@@ -147,6 +147,12 @@ resource "aws_autoscaling_group" "ecs_asg" {
     value               = "ecs-instance"
     propagate_at_launch = true
   }
+
+  tag {
+    key                 = "AmazonECSManaged"
+    value               = "true"
+    propagate_at_launch = true
+  }
 }
 
 resource "aws_ecs_capacity_provider" "ec2" {
@@ -192,7 +198,10 @@ resource "aws_ecs_task_definition" "api_gateway" {
         { name = "GATEWAY_PORT", value = "3000" },
         { name = "RABBITMQ_HOST", value = "rabbitmq.local" },
         { name = "RABBITMQ_PORT", value = "5672" },
-        { name = "RABBITMQ_USER", value = "rabbitmq_user" }
+        { name = "RABBITMQ_USER", value = "rabbitmq_user" },
+        { name = "COGNITO_REGION", value = data.aws_region.current.name },
+        { name = "COGNITO_USER_POOL_ID", value = aws_cognito_user_pool.main.id },
+        { name = "COGNITO_APP_CLIENT_ID", value = aws_cognito_user_pool_client.main.id }
       ]
       secrets = [{ name = "RABBITMQ_PASSWORD", valueFrom = aws_ssm_parameter.rabbitmq_password.arn }]
       logConfiguration = {
@@ -375,7 +384,7 @@ resource "aws_ecs_task_definition" "inventory_stack" {
       secrets     = [{ name = "POSTGRES_PASSWORD", valueFrom = aws_ssm_parameter.inventory_db_password.arn }]
       mountPoints = [{ sourceVolume = "inventory-db-data", containerPath = "/data/inventory", readOnly = false }]
       healthCheck = {
-        command     = ["CMD-SHELL", "pg_isready -U inventoryuser -h localhost"]
+        command     = ["CMD-SHELL", "pg_isready -U inventoryuser -d inventory -h localhost"]
         interval    = 10
         timeout     = 5
         retries     = 10
